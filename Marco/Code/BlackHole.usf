@@ -1,0 +1,40 @@
+#define STEPS 250
+
+struct BlackHoleProperties {
+
+    float Mass;
+    float EventHorizon;
+
+};
+
+float CrossMagnitude2(float3 A, float3 B) {
+    return pow(length(cross(A, B)), 2.0);
+}
+
+float3 GravityForce(float3 RayPos, float3 RayDir, BlackHoleProperties BHP) {
+    float3 RayPosNorm = normalize(RayPos);
+    float3 RayDirNorm = normalize(RayDir);
+    return -3 * BHP.Mass * CrossMagnitude2(RayPosNorm, RayDirNorm) * RayPosNorm / pow(length(RayPos), 2.0);
+}
+
+void BlackHole(float3 CameraPos, inout float3 CameraDir, inout float Mask, BlackHoleProperties BHP) {
+
+    float3 RayPos = CameraPos;
+    float3 RayDir = CameraDir;
+
+    float3 OldPos;
+
+    for (int i = 0; i < STEPS; i++) 
+    {
+        if (length(RayPos) <= BHP.EventHorizon) {
+            Mask = 0.0;
+            break;
+        }
+        OldPos = RayPos;
+        RayPos += RayDir + GravityForce(RayPos, RayDir, BHP);
+        RayDir = normalize(RayPos - OldPos);
+    }
+
+    CameraDir = RayDir;
+
+}
