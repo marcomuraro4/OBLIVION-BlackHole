@@ -1,0 +1,110 @@
+#define STEPS 250
+
+
+
+struct BlackHoleProperties {
+
+    float Mass;
+    float EventHorizon; //Event Horizon Radius
+
+    //Accretion disk properties
+    //The size is controllable
+    //The position of the innermost edge is approx 3 times
+    //the event horizon radius for a Swatzchild blackhole
+    float DiskSize; //Accretion Disk Size
+    float DiskStart;
+
+};
+
+float CrossMagnitude2(float3 A, float3 B) {
+    return pow(length(cross(A, B)), 2.0);
+}
+
+float3 GravityForce(float3 RayPos, float3 RayDir, BlackHoleProperties BHP) {
+    float3 RayPosNorm = normalize(RayPos);
+    float3 RayDirNorm = normalize(RayDir);
+    return -3 * BHP.Mass * CrossMagnitude2(RayPosNorm, RayDirNorm) * RayPosNorm / pow(length(RayPos), 2.0);
+}
+
+float3 CartesianToPolar(float3 Cartesian)
+{
+    //Radius (r)
+    r = length(Cartesian);
+
+    //Polar angle (phi)
+    phi = acos(Cartesian.z / r);
+
+    //Azimuthal angle (theta)
+    theta = atan2(Cartesian.y, Cartesian.x);
+
+    
+    return float3(r, phi, theta);
+}
+
+
+bool CheckAccretionDisk(float3 OldPos, float3 NewPos, BlackHoleProperties BHP)
+{
+    bool CrossEmisphere = OldPos.z * NewPos.z < 0;
+    float AvgDist = (length(OldPos) + length(NewPos)) / 2.0;
+    bool InsideDisk = (AvgDist > BHP.DiskStart && AvgDist < BHP.DiskStart + BHP.DiskSize);
+    return CrossEmisphere && InsideDisk;
+}
+
+bool CheckEmpishereCrossing(float3 OldPos, float3 NewPos)
+{
+    bool CrossEmisphere = OldPos.z * NewPos.z < 0;
+    return CrossEmisphere;
+}
+
+float2 GetDiskIntercept(float3 RayStart, float3 RayEnd)
+{
+    float3 Dir = normalize(RayEnd-RayStart);
+    float RayLength = length(RayEnd-RayStart);
+    float ProjectionDist = RayStart.z * RayLength / (abs(RayStart.z) + abs(RayEnd.z));
+    float3 Intercept = RayStart + ProjectionDist * Dir;
+    return Intercept.xy;
+}
+
+void BlackHole(float3 CameraPos, inout float3 CameraDir, inout float Mask, BlackHoleProperties BHP, inout float3 Color, Texture2D Tex, SamplerState TexSampler, Texture2D TexDisk, SamplerState TexDiskSampler) {
+
+    float3 RayPos = CameraPos;
+    float3 RayDir = CameraDir;
+
+    float3 OldPos;
+
+    for (int i = 0; i < STEPS; i++) 
+    {
+        if (length(RayPos) <= BHP.EventHorizon) {
+            Mask = 0.0;
+            break;
+        }
+        OldPos = RayPos;
+        RayPos += RayDir + GravityForce(RayPos, RayDir, BHP);
+        RayDir = normalize(RayPos - OldPos);
+
+        if (CheckEmpishereCrossing(OldPos, RayPos))
+        {
+            float2 DiskIntercept = GetDiskIntercept(OldPos, RayPos);
+            float CenterDistance = length(DiskIntercept);
+            if (CenterDistance > BHP.DiskStart && CenterDistance < BHP.DiskStart + BHP.DiskSize)
+                {
+                    Color = TexDisk.Sample(TexDiskSampler, CameraDir);
+                    return;
+                }    
+        }
+
+
+    }
+
+    CameraDir = RayDir;
+
+
+    //float3 skyboxColor = _SkyboxTexture.SampleLevel(sampler_SkyboxTexture, CameraDir, 0);
+    //Color = skyboxColor;
+
+    //Color = texCUBE(Tex, TexSampler, CameraDir);
+    Color = Tex.Sample(TexSampler, CameraDir);
+
+}
+
+
