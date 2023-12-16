@@ -33,8 +33,8 @@ SynthDef(\scifiPad, {
 
 ~scale = [0, 2, 5];
 ~fund = 19;
-~ampLow = 1;
-~ampHigh = 0.05;
+~ampLow = 1.4;
+~ampHigh = 0.01;
 ~cutHigh = 1200;
 
 fork{
@@ -48,11 +48,12 @@ fork{
 fork{
 	loop{
 		var t = 0.6;
- 		var freq = (~scale.choose + ~fund + (12 * (0..3).choose)).midicps;
-		freq.postln;
+ 		var freqLow = (~scale.choose + ~fund + (12 * (0..2).choose)).midicps;
+		var freqHigh = (~scale.choose + ~fund + (12 * (2..4).choose)).midicps;
+		freqHigh.postln;
 		~synthLow = Synth.new(
 			\scifiPad, [
-				\freq, freq,
+				\freq, freqLow,
 				\att, 3.0.rand / t,
 				\sus, 3.0.rand / t,
 				\rel, 3.0.rand / t,
@@ -64,15 +65,15 @@ fork{
 				\vibRate, t / (1..10).choose,
 				\vibDepth, (90..500).choose.reciprocal,
 				\t, t,
-				\cutoff, 120,
+				\cutoff, 150,
 				\amp, ~ampLow,
 				\flag, 0
 		]);
 		~synthHigh = Synth.new(
 			\scifiPad, [
-				\freq, freq ,
+				\freq, freqHigh,
 				\att, 2.0.rand / t,
-				\sus, 2.0.rand / t,
+				\sus, 3.0.rand / t,
 				\rel, 2.0.rand / t,
 				\freqAtt, 2.0.rand / t,
 				\freqSus, 2.0.rand / t,
@@ -94,7 +95,7 @@ fork{
 	var in = In.ar(0, 2);
 	in = in * 0.25;
 	in = Compander.ar(in, in, 0.75, 1, 0.75, 0.1, 0.4);
-	in = (in * 0.2) + GVerb.ar(HPF.ar(in, 60), 20, 20, mul: 0.6).tanh;
+	in = (in * 0.2) + GVerb.ar(HPF.ar(in, 100), 20, 20, mul: 0.6).tanh;
 	in = Limiter.ar(LeakDC.ar(in));
 	ReplaceOut.ar(0, in)
 }.play(addAction: \addToTail);
@@ -106,7 +107,7 @@ NetAddr("127.0.0.1", 57120);
 ~minAmpLow = 0.5;
 ~maxAmpLow = 1;
 ~minAmpHigh = 0;
-~maxAmpHigh = 0.3;
+~maxAmpHigh = 0.2;
 
 OSCdef('OSCreceiver',
 	{ arg msg;
