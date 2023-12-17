@@ -51,12 +51,10 @@ fork{
 fork{
 	loop{
 		var t = 0.6;
- 		var freqLow = (~scale.choose + ~fund + (12 * (0..2).choose)).midicps;
+ 		var freqLow = (~scale.choose + ~fund + (6 * (0..1).choose)).midicps;
 		var freqMid = (~scale.choose + ~fund + (12 * (2..4).choose)).midicps;
 		var freqHigh = (~scale.choose + ~fund + (12 * (4..6).choose)).midicps;
 		freqLow.postln;
-		freqMid.postln;
-		freqHigh.postln;
 		~synthLow = Synth.new(
 			\scifiPad, [
 				\freq, freqLow,
@@ -119,7 +117,7 @@ fork{
 	var in = In.ar(0, 2);
 	in = in * 0.25;
 	//in = Compander.ar(in, in, 0.75, 1, 0.75, 0.1, 0.4);
-	in = (in * 0.2) + GVerb.ar(HPF.ar(in, 100), 20, 20, mul: 0.6).tanh;
+	in = (in * 0.5) + GVerb.ar(HPF.ar(in, 60), 20, 20, mul: 0.5).tanh;
 	in = Limiter.ar(LeakDC.ar(in));
 	ReplaceOut.ar(0, in)
 }.play(addAction: \addToTail);
