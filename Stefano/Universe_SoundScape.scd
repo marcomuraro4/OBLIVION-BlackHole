@@ -1,5 +1,7 @@
 (
 
+s.waitForBoot({
+
 SynthDef(\scifiPad, {
 	arg freq = 440, att = 2, sus = 2, rel = 2,
 		freqAtt = 1, freqSus = 1, freqRel = 1,
@@ -21,8 +23,9 @@ SynthDef(\scifiPad, {
 	]);
 	sig = sig.tanh * env;
 	if(flag == 0,{
-		sig = MoogFF.ar(sig, cutoff, LFNoise2.kr(1 / t, 1.4, 1.5)).tanh;
-        sig = RLPF.ar(sig, 1e4, 0.9).tanh;
+		ffreq = max(freqEnv * freq * 12, freq * (1.1,1.2..4).choose) + 100;
+		sig = MoogFF.ar(sig, ffreq, LFNoise2.kr( 1 / t, 1.4, 1.5)).tanh;
+		sig = RLPF.ar(sig, 1e4, 0.9).tanh;
     },{
 		sig = MoogFF.ar(sig, cutoff, LFNoise2.kr(1 / t, 1.4, 1.5)).tanh;
         sig = RHPF.ar(sig, 300, 0.9).tanh;
@@ -34,8 +37,8 @@ SynthDef(\scifiPad, {
 ~scale = [0, 2, 5];
 ~fund = 19;
 ~ampLow = 1.4;
-~ampHigh = 0.01;
-~cutHigh = 1200;
+~ampMid = 0.1;
+~ampHigh = 0.04;
 
 fork{
 	loop{
@@ -49,7 +52,10 @@ fork{
 	loop{
 		var t = 0.6;
  		var freqLow = (~scale.choose + ~fund + (12 * (0..2).choose)).midicps;
-		var freqHigh = (~scale.choose + ~fund + (12 * (2..4).choose)).midicps;
+		var freqMid = (~scale.choose + ~fund + (12 * (2..4).choose)).midicps;
+		var freqHigh = (~scale.choose + ~fund + (12 * (4..6).choose)).midicps;
+		freqLow.postln;
+		freqMid.postln;
 		freqHigh.postln;
 		~synthLow = Synth.new(
 			\scifiPad, [
@@ -65,13 +71,13 @@ fork{
 				\vibRate, t / (1..10).choose,
 				\vibDepth, (90..500).choose.reciprocal,
 				\t, t,
-				\cutoff, 150,
+				\cutoff, 200,
 				\amp, ~ampLow,
 				\flag, 0
 		]);
-		~synthHigh = Synth.new(
+		~synthMid = Synth.new(
 			\scifiPad, [
-				\freq, freqHigh,
+				\freq, freqMid,
 				\att, 2.0.rand / t,
 				\sus, 3.0.rand / t,
 				\rel, 2.0.rand / t,
@@ -83,7 +89,25 @@ fork{
 				\vibRate, t / (1..10).choose,
 				\vibDepth, (90..500).choose.reciprocal,
 				\t, t,
-				\cutoff, ~cutHigh,
+				\cutoff, 1100,
+				\amp, ~ampMid,
+				\flag, 1
+		]);
+		~synthHigh = Synth.new(
+			\scifiPad, [
+				\freq, freqHigh,
+				\att, 1.0.rand / t,
+				\sus, 3.0.rand / t,
+				\rel, 1.0.rand / t,
+				\freqAtt, 1.0.rand / t,
+				\freqSus, 2.0.rand / t,
+				\freqRel, 1.0.rand / t,
+				\detune, 1e-3,
+				\ratio, (0.99, 0.991..1.01).choose,
+				\vibRate, t / (1..10).choose,
+				\vibDepth, (90..500).choose.reciprocal,
+				\t, t,
+				\cutoff, 1700,
 				\amp, ~ampHigh,
 				\flag, 1
 		]);
@@ -94,7 +118,7 @@ fork{
 {
 	var in = In.ar(0, 2);
 	in = in * 0.25;
-	in = Compander.ar(in, in, 0.75, 1, 0.75, 0.1, 0.4);
+	//in = Compander.ar(in, in, 0.75, 1, 0.75, 0.1, 0.4);
 	in = (in * 0.2) + GVerb.ar(HPF.ar(in, 100), 20, 20, mul: 0.6).tanh;
 	in = Limiter.ar(LeakDC.ar(in));
 	ReplaceOut.ar(0, in)
@@ -102,12 +126,12 @@ fork{
 
 NetAddr("127.0.0.1", 57120);
 
-~minCutHigh = 600;
-~maxCutHigh = 1100;
 ~minAmpLow = 0.5;
 ~maxAmpLow = 1;
+~minAmpMid = 0;
+~maxAmpMid = 0.2;
 ~minAmpHigh = 0;
-~maxAmpHigh = 0.2;
+~maxAmpHigh = 0.1;
 
 OSCdef('OSCreceiver',
 	{ arg msg;
@@ -115,10 +139,14 @@ OSCdef('OSCreceiver',
 	  distNorm = msg[1];
 	  forceNorm = msg[2];
 	  ~ampLow = ~minAmpLow + (~maxAmpLow - ~minAmpLow) * forceNorm;
+	  ~ampMid = ~maxAmpMid - (~maxAmpMid - ~minAmpMid) * distNorm;
 	  ~ampHigh = ~maxAmpHigh - (~maxAmpHigh - ~minAmpHigh) * distNorm;
-	  ~cutHigh = ~maxCutHigh - (~maxCutHigh - ~minCutHigh) * distNorm;
 	  ~synthLow.set(\amp, ~ampLow);
-	  ~synthHigh.set(\cutoff, ~cutHigh, \amp, ~ampHigh);
+	  ~synthMid.set(\amp, ~ampMid);
+	  ~synthHigh.set(\amp, ~ampHigh);
 	},
 	"/pos_force");
+
+})
+
 )
