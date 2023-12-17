@@ -121,12 +121,12 @@ fork{
 	ReplaceOut.ar(0, sig)
 }.play(addAction: \addToTail);
 
-~minAmpLow = 0.5;
+~minAmpLow = 1;
 ~maxAmpLow = 1.25;
 ~minAmpMid = 0;
-~maxAmpMid = 0.15;
+~maxAmpMid = 0.1;
 ~minAmpHigh = 0;
-~maxAmpHigh = 0.05;
+~maxAmpHigh = 0.07;
 
 NetAddr("127.0.0.1", 57120);
 
@@ -135,12 +135,9 @@ OSCdef('OSCreceiver',
 	  var distNorm, forceNorm;
 	  distNorm = msg[1];
 	  forceNorm = msg[2];
-	  ~ampLow = ~minAmpLow + (~maxAmpLow - ~minAmpLow) * forceNorm;
-	  ~ampMid = ~maxAmpMid - (~maxAmpMid - ~minAmpMid) * distNorm;
-	  ~ampHigh = ~maxAmpHigh - (~maxAmpHigh - ~minAmpHigh) * distNorm;
-	  ~synthLow.set(\amp, ~ampLow);
-	  ~synthMid.set(\amp, ~ampMid);
-	  ~synthHigh.set(\amp, ~ampHigh);
+	  ~ampLow = ~minAmpLow + ((~maxAmpLow - ~minAmpLow) * forceNorm);
+	  ~ampMid = ~maxAmpMid - ((~maxAmpMid - ~minAmpMid) * distNorm);
+	  ~ampHigh = ~maxAmpHigh - ((~maxAmpHigh - ~minAmpHigh) * distNorm);
 	},
 	"/pos_force");
 
