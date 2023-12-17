@@ -1,4 +1,30 @@
 #define STEPS 250
+#define PI 3.14
+
+
+
+struct RenderingProperties
+{
+    //Volumetric noise rendering parameters
+    float stepSize;
+    float absorptionFactor;
+    float noiseCutoff; //Higher cutoff -> more black parts in the disk pattern
+    float noiseMultiplier;
+    int maxSteps;
+
+    //Accretion Disk parameters 
+    //Computer graphics only (no real physical meaning)
+    //Therefore I put them here
+    int numOctaves; //Number of octaves for FBM (Higher -> more detailed pattern)
+    float H; //Hurst exponent. Higher means smoother patterns (range is 0 to 1). Usually 1 works best for nature patterns
+    float noiseCirculation; //How much "swirling" effect
+    float3 noiseOffset;
+    float noiseScale;
+
+    //brightness parameters
+    float diskMult;
+
+};
 
 
 
@@ -13,6 +39,7 @@ struct BlackHoleProperties {
     //the event horizon radius for a Swatzchild blackhole
     float DiskSize; //Accretion Disk Size
     float DiskStart;
+    float RotationSpeed;
 
 };
 
@@ -29,16 +56,32 @@ float3 GravityForce(float3 RayPos, float3 RayDir, BlackHoleProperties BHP) {
 float3 CartesianToPolar(float3 Cartesian)
 {
     //Radius (r)
-    r = length(Cartesian);
+    float r = length(Cartesian);
 
-    //Polar angle (phi)
-    phi = acos(Cartesian.z / r);
+    //Polar (inclination) angle (theta)
+    float theta = acos(Cartesian.z / r);
 
-    //Azimuthal angle (theta)
-    theta = atan2(Cartesian.y, Cartesian.x);
+    //Azimuthal (rotation) angle (phi)
+    float phi = atan2(Cartesian.y, Cartesian.x);
+
+
+    //Consider that in the output then we will have
+    //x -> radial (r)
+    //y -> Polar (theta)
+    //z -> Azimuthal (phi)
 
     
-    return float3(r, phi, theta);
+    return float3(r, theta, phi);
+}
+
+// Spherical to Cartesian coordinate conversion
+float3 PolarToCartesian(float3 sph)
+{
+    float x = sph.x * sin(sph.y) * cos(sph.z);
+    float y = sph.x * sin(sph.y) * sin(sph.z);
+    float z = sph.x * cos(sph.y);
+
+    return float3(x, y, z);
 }
 
 
@@ -65,19 +108,199 @@ float2 GetDiskIntercept(float3 RayStart, float3 RayEnd)
     return Intercept.xy;
 }
 
-void BlackHole(float3 CameraPos, inout float3 CameraDir, inout float Mask, BlackHoleProperties BHP, inout float3 Color, Texture2D Tex, SamplerState TexSampler, Texture2D TexDisk, SamplerState TexDiskSampler) {
+
+
+
+
+//Accretion Disk Cloud Rendering part
+
+float4 Blend(float4 foreColor, float4 backColor)
+{
+    // Blend using previous color's alpha
+    float4 outColor = foreColor + backColor;
+    return outColor;
+}
+
+
+// Pseudorandom 3D function
+float Random(float3 sampleCoord)
+{
+    return frac(sin(dot(sampleCoord.xyz, float3(12.9898, 78.233, 49.551))) * 43758.5453123);
+}
+
+// 3D Noise function
+// Used to generate the noise which is
+// employed to generate FBM
+float Noise(float3 sampleCoord) {
+
+    // Separate integral and fractional components
+    float3 i = floor(sampleCoord);
+    float3 fr = frac(sampleCoord);
+
+    // Four corners of adjacent tile
+    float a = Random(i + float3(0.0, 0.0, 0.0));
+    float b = Random(i + float3(1.0, 0.0, 0.0));
+    float c = Random(i + float3(0.0, 1.0, 0.0));
+    float d = Random(i + float3(1.0, 1.0, 0.0));
+    float e = Random(i + float3(0.0, 0.0, 1.0));
+    float f = Random(i + float3(1.0, 0.0, 1.0));
+    float g = Random(i + float3(0.0, 1.0, 1.0));
+    float h = Random(i + float3(1.0, 1.0, 1.0));
+
+    // Smooth interpolation
+    float3 u = fr * fr * (3.0 - 2.0 * fr);
+
+    // Mix and return
+    float z0 = lerp(a, b, u.x) +
+        (c - a) * u.y * (1.0 - u.x) +
+        (d - b) * u.x * u.y;
+    float z1 = lerp(e, f, u.x) +
+        (g - e) * u.y * (1.0 - u.x) +
+        (h - f) * u.x * u.y;
+
+    float result = lerp(z0, z1, u.z);
+    return result;
+
+
+}
+
+// Fractional Brownian Motion for noise sampling
+
+float SampleFBM(float3 x, RenderingProperties RP)
+{
+
+    float G = exp2(-RP.H);
+    float f = 1.0;
+    float a = 1.0;
+    float t = 0.0;
+    for (int i = 0; i < RP.numOctaves; i++)
+    {
+        t = t +  a * Noise(f * x);
+        f *= 2.0;
+        a *= G;
+    }
+    return t;
+}
+
+// Volumetric rendering of circumstellar disk
+float VolumetricDiskBrightness(float3 x, float3 xLast, BlackHoleProperties BHP, RenderingProperties RP, float Time)
+{
+    //Input must be in polar coordinates!
+
+    // Calculate position along disk
+    float r = (x.x + xLast.x) / 2.0;
+    float phi = (x.z + xLast.z) / 2.0;
+    float rNorm = (r - BHP.DiskStart) / BHP.DiskSize;
+
+    // Calculate starting position
+
+    //I've removed the time delay factor since we can't implement that until we define
+    //the step t
+    float3 startPos;
+    startPos.x = r * cos(phi + (RP.noiseCirculation * rNorm) -  Time * BHP.RotationSpeed);
+    startPos.y = r * sin(phi + (RP.noiseCirculation * rNorm) - Time * BHP.RotationSpeed);
+    startPos.z = 0.0;
+
+    // Calculate march direction
+    float3 marchDir = normalize(PolarToCartesian(x) - PolarToCartesian(xLast));
+
+    // Calculate number of steps through volume
+    int numSteps = int(ceil(1.0 / (RP.stepSize * length(marchDir.xz))));
+    numSteps = min(RP.maxSteps, numSteps);
+
+    // Loop through steps, marching through volume
+    float volumeDepth = 0.0;
+    float volumetricValue = 0.0;
+    float densitySum = 0.0;
+    float3 position = 0.0;
+    for (int i = 0; i < numSteps; i++) {
+
+        // Calculate density at next march step
+        volumeDepth += RP.stepSize;
+        position = startPos + volumeDepth * marchDir;
+        float density = RP.noiseMultiplier * (SampleFBM(position * RP.noiseScale + RP.noiseOffset, RP) - RP.noiseCutoff);
+
+        // Calculate brightness/attenuation if in volume
+        bool isInVolume = density > 0.0;
+        if (isInVolume) { //Check if we are actually hitting some particle
+            densitySum += density; //Add the density
+            float absorption = exp(-RP.absorptionFactor * densitySum * RP.stepSize);
+            volumetricValue += RP.diskMult * density * RP.stepSize * absorption;
+        }
+    }
+
+    // Reduce intensity over distance
+    //(Keep commented for the moment)
+    //float falloff = rNorm < 0.0 ? exp(falloffRate * rNorm * diskMax / horizonRadius) : 1.0;
+    //volumetricValue *= falloff;
+
+
+    return volumetricValue;
+}
+
+// Get color of accretion disk
+float4 GetDiskColor(float3 x, float3 xLast, BlackHoleProperties BHP, RenderingProperties RP, float Time, Texture2D TexDisk, SamplerState TexDiskSampler)
+{
+    //Convert input vector to polar coordinates
+    //Now doing this every time is a bit slow
+    //We should consider which system to use as default coord system...
+
+    x = CartesianToPolar(x);
+    xLast = CartesianToPolar(xLast);
+
+    // Calculate noise texture UV coordinates
+    float2 uv;
+    float rEval = (x.x + xLast.x) / 2.0; //Average radius
+    float phEval = (x.z + xLast.z) / 2.0; //Average azimuthal angle
+    uv.x = phEval / (2.0 * PI); //Map full circle on [0,1] segment
+    uv.y = (abs(rEval) - BHP.DiskStart) / BHP.DiskSize; //Map radial position on accretion disk to [0, 1] segment
+
+    // Sample noise texture
+    float texColor = VolumetricDiskBrightness(x, xLast, BHP, RP, Time);
+
+    //Simplified version for the moment, not accounting for many effects
+
+    float4 sampleColor = TexDisk.Sample(TexDiskSampler, uv);
+
+    float4 outColor = texColor.xxxx * float4(sampleColor.xyz, 1.0);
+
+    return outColor;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void BlackHole(float3 CameraPos, float3 CameraDir, inout float Mask, BlackHoleProperties BHP, inout float4 Color, Texture2D Tex, SamplerState TexSampler, Texture2D TexDisk, SamplerState TexDiskSampler, RenderingProperties RP, float Time) {
 
     float3 RayPos = CameraPos;
     float3 RayDir = CameraDir;
 
+    RayDir = RayDir;
+
+
     float3 OldPos;
+
+    float4 DiskColor;
+
+    bool inEventHorizon = false;
 
     for (int i = 0; i < STEPS; i++) 
     {
         if (length(RayPos) <= BHP.EventHorizon) {
-            Mask = 0.0;
+            inEventHorizon = true;
             break;
         }
+
         OldPos = RayPos;
         RayPos += RayDir + GravityForce(RayPos, RayDir, BHP);
         RayDir = normalize(RayPos - OldPos);
@@ -86,10 +309,10 @@ void BlackHole(float3 CameraPos, inout float3 CameraDir, inout float Mask, Black
         {
             float2 DiskIntercept = GetDiskIntercept(OldPos, RayPos);
             float CenterDistance = length(DiskIntercept);
-            if (CenterDistance > BHP.DiskStart && CenterDistance < BHP.DiskStart + BHP.DiskSize)
+            if (CenterDistance > BHP.DiskStart &&  CenterDistance < BHP.DiskStart + BHP.DiskSize)
                 {
-                    Color = TexDisk.Sample(TexDiskSampler, CameraDir);
-                    return;
+                    DiskColor = GetDiskColor(RayPos, OldPos, BHP, RP, Time, TexDisk, TexDiskSampler);
+                    Color = Blend(Color, DiskColor);
                 }    
         }
 
@@ -97,14 +320,11 @@ void BlackHole(float3 CameraPos, inout float3 CameraDir, inout float Mask, Black
     }
 
     CameraDir = RayDir;
+    float4 skyBoxColor = 0.0;
 
+    if (!inEventHorizon)
+       skyBoxColor = Tex.Sample(TexSampler, CameraDir);
 
-    //float3 skyboxColor = _SkyboxTexture.SampleLevel(sampler_SkyboxTexture, CameraDir, 0);
-    //Color = skyboxColor;
-
-    //Color = texCUBE(Tex, TexSampler, CameraDir);
-    Color = Tex.Sample(TexSampler, CameraDir);
+    Color = Blend(Color, skyBoxColor);
 
 }
-
-
