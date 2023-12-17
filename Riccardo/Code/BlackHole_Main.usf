@@ -1,0 +1,46 @@
+float3 CameraPosWS = LWCToFloat(ResolvedView.WorldCameraOrigin);
+float3 CameraDirWS = -Parameters.CameraVector;
+
+
+Mask = 1.0;
+BlackHoleProperties BHP;
+BHP.Mass = Mass;
+BHP.EventHorizon = Mass*2;
+BHP.DiskStart = BHP.EventHorizon*3;
+BHP.DiskSize = 5;
+BHP.RotationSpeed = 3.0;
+
+RenderingProperties RP;
+RP.stepSize = 0.001;
+RP.absorptionFactor = 2;
+RP.noiseCutoff = 1.1;
+RP.noiseMultiplier = 3;
+RP.maxSteps = 500;
+
+RP.numOctaves = 8;
+RP.H = 1;
+RP.noiseCirculation = 3;
+RP.noiseOffset = 1;
+RP.noiseScale = 1;
+RP.diskMult = 2;
+
+
+//Random values for jitter
+int3 randpos = int3(Parameters.SvPosition.xy, View.StateFrameIndexMod8);
+float rand = float(Rand3DPCG16(randpos).x) / 0xffff;
+
+
+
+float3 InitPos = CameraPosWS;
+float3 InitDir = CameraDirWS;
+
+//Jitter is used to avoid aliasing effects
+//(e.g. strange discontinuities in the accretion disk)
+//Basically add some displacement to the initial position
+float JitterAmount = 0.8; //Make it a parameters
+InitPos += InitDir * rand * JitterAmount;
+
+
+BlackHole(InitPos, InitDir, Mask, BHP, Color, Tex, TexSampler, TexDisk, TexDiskSampler, RP, Time);
+
+return 1.0;
