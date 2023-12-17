@@ -36,9 +36,9 @@ SynthDef(\scifiPad, {
 
 ~scale = [0, 2, 5];
 ~fund = 19;
-~ampLow = 1.4;
-~ampMid = 0.1;
-~ampHigh = 0.04;
+~ampLow = 1.25;
+~ampMid = 0.08;
+~ampHigh = 0.05;
 
 fork{
 	loop{
@@ -51,10 +51,9 @@ fork{
 fork{
 	loop{
 		var t = 0.6;
- 		var freqLow = (~scale.choose + ~fund + (6 * (0..1).choose)).midicps;
+ 		var freqLow = (~scale.choose + ~fund + (8 * (0..1).choose)).midicps;
 		var freqMid = (~scale.choose + ~fund + (12 * (2..4).choose)).midicps;
 		var freqHigh = (~scale.choose + ~fund + (12 * (4..6).choose)).midicps;
-		freqLow.postln;
 		~synthLow = Synth.new(
 			\scifiPad, [
 				\freq, freqLow,
@@ -69,7 +68,7 @@ fork{
 				\vibRate, t / (1..10).choose,
 				\vibDepth, (90..500).choose.reciprocal,
 				\t, t,
-				\cutoff, 200,
+				\cutoff, 300,
 				\amp, ~ampLow,
 				\flag, 0
 		]);
@@ -87,7 +86,7 @@ fork{
 				\vibRate, t / (1..10).choose,
 				\vibDepth, (90..500).choose.reciprocal,
 				\t, t,
-				\cutoff, 1100,
+				\cutoff, 1200,
 				\amp, ~ampMid,
 				\flag, 1
 		]);
@@ -105,7 +104,7 @@ fork{
 				\vibRate, t / (1..10).choose,
 				\vibDepth, (90..500).choose.reciprocal,
 				\t, t,
-				\cutoff, 1700,
+				\cutoff, 2200,
 				\amp, ~ampHigh,
 				\flag, 1
 		]);
@@ -114,22 +113,22 @@ fork{
 	};
 
 {
-	var in = In.ar(0, 2);
-	in = in * 0.25;
-	//in = Compander.ar(in, in, 0.75, 1, 0.75, 0.1, 0.4);
-	in = (in * 0.5) + GVerb.ar(HPF.ar(in, 60), 20, 20, mul: 0.5).tanh;
-	in = Limiter.ar(LeakDC.ar(in));
-	ReplaceOut.ar(0, in)
+	var sig = In.ar(0, 2);
+	sig = sig * 0.25;
+	sig = Compander.ar(sig, sig, 0.75, 1, 0.75, 0.1, 0.4);
+	sig = (sig * 0.5) + GVerb.ar(HPF.ar(sig, 60), 20, 20, mul: 0.5).tanh;
+	sig = Limiter.ar(LeakDC.ar(sig));
+	ReplaceOut.ar(0, sig)
 }.play(addAction: \addToTail);
 
-NetAddr("127.0.0.1", 57120);
-
 ~minAmpLow = 0.5;
-~maxAmpLow = 1;
+~maxAmpLow = 1.25;
 ~minAmpMid = 0;
-~maxAmpMid = 0.2;
+~maxAmpMid = 0.15;
 ~minAmpHigh = 0;
-~maxAmpHigh = 0.1;
+~maxAmpHigh = 0.05;
+
+NetAddr("127.0.0.1", 57120);
 
 OSCdef('OSCreceiver',
 	{ arg msg;
