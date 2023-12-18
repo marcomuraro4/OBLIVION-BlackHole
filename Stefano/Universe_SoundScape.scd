@@ -45,15 +45,6 @@ SynthDef.new(\scifiFM, {
 	Out.ar(0, car);
 }).add;
 
-SynthDef.new(\wind, {
-	arg cutoff = 700, amp = 0.005;
-	var sig;
-	sig = WhiteNoise.ar(amp);
-	sig = LPF.ar(sig, cutoff);
-	sig = Pan2.ar(sig, LFNoise2.kr(1));
-    Out.ar(0, sig);
-}).add;
-
 (0.1).wait;
 
 ~scale = [0, 2, 5];
@@ -62,15 +53,6 @@ SynthDef.new(\wind, {
 ~ampMid = 0;
 ~ampHigh = 0;
 ~relAmpFM = 0.05;
-~cutWind = 600;
-~ampWind = 0;
-
-~synthWind = Synth.new(
-		\wind, [
-			\cutoff, ~cutWind,
-			\amp, ~ampWind
-]);
-~synthWind.register;
 
 fork{
 	loop{
@@ -83,7 +65,7 @@ fork{
 fork{
 	loop{
 		var t = 0.6;
- 		var freqLow = (~scale.choose + ~fund + (8 * (0..1).choose)).midicps;
+ 		var freqLow = (~scale.choose + ~fund + (10 * (0..1).choose)).midicps;
 		var freqMid = (~scale.choose + ~fund + (12 * (2..4).choose)).midicps;
 		var freqHigh = (~scale.choose + ~fund + (12 * (4..6).choose)).midicps;
 		~synthLow = Synth.new(
@@ -178,10 +160,6 @@ fork{
 ~maxAmpHigh = 0.07;
 ~minRelAmpFM = 0.05;
 ~maxRelAmpFM = 1;
-~minCutWind = 600;
-~maxCutWind = 900;
-~minAmpWind = 0;
-~maxAmpWind = 0.0199;
 ~alpha = 0.5 * (sqrt(2) - 1 + sqrt(2 * sqrt(2) - 1));
 ~beta = - 1 / ((1 + ~alpha).squared);
 
@@ -196,11 +174,6 @@ OSCdef('OSCreceiver',
 	  ~ampMid = ~maxAmpMid - ((~maxAmpMid - ~minAmpMid) * distNorm);
 	  ~ampHigh = ~maxAmpHigh - ((~maxAmpHigh - ~minAmpHigh) * distNorm);
 	  ~relAmpFM = ~maxRelAmpFM - ((~maxRelAmpFM - ~minRelAmpFM) * distNorm);
-	  ~cutWind = ~maxCutWind - ((~maxCutWind - ~minCutWind) * distNorm);
-	  ~ampWind = ~maxAmpWind - ((~maxAmpWind - ~minAmpWind) * distNorm);
-	  if(~synthWind.isPlaying){
-			~synthWind.set(\cutoff, ~cutWind, \amp, ~ampWind);
-	  };
 	},
 "/pos_force");
 
