@@ -129,6 +129,7 @@ fork{
 fork{
 	loop{
 		var t_FX = rrand(1.0, 8.0);
+		var ampFM = rrand(0.05, 0.15) * ~relAmpFM;
 		~synthFM = Synth.new(
 			\scifiFM, [
 				\carFreq, rrand(500, 2000),
@@ -136,7 +137,7 @@ fork{
 				\modAmp, rrand(10, 100),
 				\sus, rrand(0.01, 0.5),
 				\pan, rrand(-1.0, 1.0),
-				\amp, rrand(0.05, 0.15) * ~relAmpFM,
+				\amp, ampFM,
 		]);
 		t_FX.wait;
 	};
@@ -159,6 +160,8 @@ fork{
 ~maxAmpHigh = 0.07;
 ~minRelAmpFM = 0.05;
 ~maxRelAmpFM = 1;
+~alpha = 0.5 * (sqrt(2) - 1 + sqrt(2 * sqrt(2) - 1));
+~beta = - 1 / ((1 + ~alpha).squared);
 
 NetAddr("127.0.0.1", 57120);
 
@@ -166,13 +169,13 @@ OSCdef('OSCreceiver',
 	{ arg msg;
 	  var distNorm, forceNorm;
 	  distNorm = msg[1];
-	  forceNorm = msg[2];
+	  forceNorm = ~beta + (1 / ((distNorm + ~alpha).squared));
 	  ~ampLow = ~minAmpLow + ((~maxAmpLow - ~minAmpLow) * forceNorm);
 	  ~ampMid = ~maxAmpMid - ((~maxAmpMid - ~minAmpMid) * distNorm);
 	  ~ampHigh = ~maxAmpHigh - ((~maxAmpHigh - ~minAmpHigh) * distNorm);
 	  ~relAmpFM = ~maxRelAmpFM - ((~maxRelAmpFM - ~minRelAmpFM) * distNorm);
 	},
-	"/pos_force");
+"/pos_force");
 
 })
 

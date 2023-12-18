@@ -43,7 +43,6 @@ void draw() {
   
   OscMessage myMessage = new OscMessage("/pos_force");
   myMessage.add(distance);
-  myMessage.add(force);
   oscP5.send(myMessage, myRemoteLocation);
   println(myMessage);
 }
