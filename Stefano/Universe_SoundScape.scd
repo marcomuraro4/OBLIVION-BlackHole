@@ -34,11 +34,25 @@ SynthDef(\scifiPad, {
 	Out.ar(0, sig);
 }).add;
 
+SynthDef.new(\scifiFM, {
+	arg carFreq = 500, modFreq = 150, modAmp = 200,
+	att = 0.01, sus = 0.5, rel = 1, pan = 0, amp = 0.3;
+	var car, mod, env;
+	env = EnvGen.kr(Env.linen(att, sus, rel), doneAction: 2);
+	mod = SinOsc.ar(modFreq, mul: modAmp);
+	car = SinOsc.ar(carFreq + mod) * env * amp;
+	car = Pan2.ar(car, pan);
+	Out.ar(0, car);
+}).add;
+
+(0.1).wait;
+
 ~scale = [0, 2, 5];
 ~fund = 19;
-~ampLow = 1.25;
-~ampMid = 0.08;
-~ampHigh = 0.05;
+~ampLow = 1;
+~ampMid = 0;
+~ampHigh = 0;
+~relAmpFM = 0.05;
 
 fork{
 	loop{
@@ -109,8 +123,24 @@ fork{
 				\flag, 1
 		]);
 		t.wait;
-		};
 	};
+};
+
+fork{
+	loop{
+		var t_FX = rrand(1.0, 8.0);
+		~synthFM = Synth.new(
+			\scifiFM, [
+				\carFreq, rrand(500, 2000),
+				\modFreq, rrand(10, 70),
+				\modAmp, rrand(10, 100),
+				\sus, rrand(0.01, 0.5),
+				\pan, rrand(-1.0, 1.0),
+				\amp, rrand(0.05, 0.15) * ~relAmpFM,
+		]);
+		t_FX.wait;
+	};
+};
 
 {
 	var sig = In.ar(0, 2);
@@ -127,6 +157,8 @@ fork{
 ~maxAmpMid = 0.1;
 ~minAmpHigh = 0;
 ~maxAmpHigh = 0.07;
+~minRelAmpFM = 0.05;
+~maxRelAmpFM = 1;
 
 NetAddr("127.0.0.1", 57120);
 
@@ -138,6 +170,7 @@ OSCdef('OSCreceiver',
 	  ~ampLow = ~minAmpLow + ((~maxAmpLow - ~minAmpLow) * forceNorm);
 	  ~ampMid = ~maxAmpMid - ((~maxAmpMid - ~minAmpMid) * distNorm);
 	  ~ampHigh = ~maxAmpHigh - ((~maxAmpHigh - ~minAmpHigh) * distNorm);
+	  ~relAmpFM = ~maxRelAmpFM - ((~maxRelAmpFM - ~minRelAmpFM) * distNorm);
 	},
 	"/pos_force");
 
