@@ -1,5 +1,11 @@
-float3 CameraPosWS = LWCToFloat(ResolvedView.WorldCameraOrigin);
-float3 CameraDirWS = -Parameters.CameraVector;
+float3 CameraPositionWS = LWCToFloat(ResolvedView.WorldCameraOrigin);
+float3 CameraVectorWS = -Parameters.CameraVector;
+
+//World To Local
+FLWCInverseMatrix WorldToLocal = GetWorldToInstance(Parameters);
+float3 Scale = LWCMultiplyVector(float3(1.0,0.0,0.0), GetInstanceToWorld(Parameters));
+float3 CameraPositionLS = LWCToFloat(LWCMultiply(ResolvedView.WorldCameraOrigin, WorldToLocal));
+float3 CameraVectorLS = LWCMultiplyVector(CameraVectorWS, GetPrimitiveData(Parameters).WorldToLocal); 
 
 
 Mask = 1.0;
@@ -7,22 +13,26 @@ BlackHoleProperties BHP;
 BHP.Mass = Mass;
 BHP.EventHorizon = Mass*2;
 BHP.DiskStart = BHP.EventHorizon*3;
-BHP.DiskSize = 5;
-BHP.RotationSpeed = 3.0;
+BHP.DiskSize = 70;
+BHP.RotationSpeed = 2.0;
+BHP.DiskDensityBias = 0.7;
+BHP.diskTemp = 1000.0;
+BHP.beamExponent = 2.0;
+BHP.falloffRate = 3;
 
 RenderingProperties RP;
-RP.stepSize = 0.001;
-RP.absorptionFactor = 2;
-RP.noiseCutoff = 1.1;
+RP.stepSize = 0.1;
+RP.absorptionFactor = 1;
+RP.noiseCutoff = 1.9;
 RP.noiseMultiplier = 3;
-RP.maxSteps = 500;
+RP.maxSteps = 50;
 
 RP.numOctaves = 8;
-RP.H = 1;
-RP.noiseCirculation = 3;
+RP.H = 0.3;
+RP.noiseCirculation =8;
 RP.noiseOffset = 1;
 RP.noiseScale = 1;
-RP.diskMult = 2;
+RP.diskMult = 100;
 
 
 //Random values for jitter
@@ -31,16 +41,22 @@ float rand = float(Rand3DPCG16(randpos).x) / 0xffff;
 
 
 
-float3 InitPos = CameraPosWS;
-float3 InitDir = CameraDirWS;
+float3 InitPos = CameraPositionLS;
+float3 InitDir = CameraVectorLS;
+
+
+
 
 //Jitter is used to avoid aliasing effects
 //(e.g. strange discontinuities in the accretion disk)
 //Basically add some displacement to the initial position
 float JitterAmount = 0.8; //Make it a parameters
-InitPos += InitDir * rand * JitterAmount;
+
+Dir = InitDir;
+InitPos += InitDir * rand * JitterAmount * Scale.x;
 
 
-BlackHole(InitPos, InitDir, Mask, BHP, Color, Tex, TexSampler, TexDisk, TexDiskSampler, RP, Time);
+
+BlackHole(InitPos, Dir, Mask, BHP, Color, Tex, TexSampler, TexDisk, TexDiskSampler, RP, Time);
 
 return 1.0;

@@ -1,4 +1,4 @@
-#define STEPS 250
+#define STEPS 700
 #define PI 3.14
 
 
@@ -40,6 +40,16 @@ struct BlackHoleProperties {
     float DiskSize; //Accretion Disk Size
     float DiskStart;
     float RotationSpeed;
+
+    float DiskDensityBias;
+
+    float beamExponent;
+
+    float diskTemp;
+
+    float falloffRate;
+
+
 
 };
 
@@ -95,7 +105,7 @@ bool CheckAccretionDisk(float3 OldPos, float3 NewPos, BlackHoleProperties BHP)
 
 bool CheckEmpishereCrossing(float3 OldPos, float3 NewPos)
 {
-    bool CrossEmisphere = OldPos.z * NewPos.z < 0;
+    bool CrossEmisphere = abs(NewPos.z)<1; //OldPos.z * NewPos.z < 0;
     return CrossEmisphere;
 }
 
@@ -230,16 +240,27 @@ float VolumetricDiskBrightness(float3 x, float3 xLast, BlackHoleProperties BHP, 
     }
 
     // Reduce intensity over distance
-    //(Keep commented for the moment)
-    //float falloff = rNorm < 0.0 ? exp(falloffRate * rNorm * diskMax / horizonRadius) : 1.0;
-    //volumetricValue *= falloff;
+    float falloff = rNorm < 0.0 ? exp(BHP.falloffRate * rNorm * (BHP.DiskStart+BHP.DiskSize) / BHP.EventHorizon) : 1.0;
+    volumetricValue *= falloff;
 
 
     return volumetricValue;
 }
 
+
+float4 SampleDiskTexture(Texture2D TexDisk, SamplerState TexDiskSampler, float2 DiskIntercept, BlackHoleProperties BHP)
+{
+    float2 UV = DiskIntercept / (2*(BHP.DiskStart+BHP.DiskSize)) - 0.5;
+    float4 DiskSample = TexDisk.Sample(TexDiskSampler, UV, 0);
+
+    float Density = saturate(DiskSample.x - BHP.DiskDensityBias);
+    Density*=(1/(1-BHP.DiskDensityBias));
+    return Density;
+
+}
+
 // Get color of accretion disk
-float4 GetDiskColor(float3 x, float3 xLast, BlackHoleProperties BHP, RenderingProperties RP, float Time, Texture2D TexDisk, SamplerState TexDiskSampler)
+float4 GetDiskColor(float3 x, float3 xLast, BlackHoleProperties BHP, RenderingProperties RP, float Time, Texture2D TexDisk, SamplerState TexDiskSampler, float2 DiskIntercept)
 {
     //Convert input vector to polar coordinates
     //Now doing this every time is a bit slow
@@ -258,13 +279,50 @@ float4 GetDiskColor(float3 x, float3 xLast, BlackHoleProperties BHP, RenderingPr
     // Sample noise texture
     float texColor = VolumetricDiskBrightness(x, xLast, BHP, RP, Time);
 
-    //Simplified version for the moment, not accounting for many effects
+    // Reduce intensity over distance
+    float falloff = uv.y < 0.0 ? exp(BHP.falloffRate * uv.y * (BHP.DiskStart+BHP.DiskSize) / BHP.EventHorizon) : max((1.0 - uv.y), 0.0);
+    texColor *= falloff;
 
-    float4 sampleColor = TexDisk.Sample(TexDiskSampler, uv);
 
-    float4 outColor = texColor.xxxx * float4(sampleColor.xyz, 1.0);
+    //float4 sampleColor = TexDisk.Sample(TexDiskSampler, uv);
+    //float4 sampleColor = SampleDiskTexture(TexDisk, TexDiskSampler, DiskIntercept, BHP);
 
+
+    //return sampleColor*texColor;
+
+    //Physics effects
+
+    // Calculate temperature
+    float rFactor = pow(abs(BHP.DiskStart / rEval), 0.75);
+    float T = BHP.diskTemp * rFactor;
+
+    // Calculate doppler shift
+    float v = sqrt(BHP.EventHorizon / (2.0 * rEval));
+    float gamma = 1.0 / sqrt(1.0 - (v * v));
+    float3 xDiff = xLast - x;
+    float incidence = xDiff.z * rEval / length(xDiff * float3(1.0, rEval, rEval));
+    float shift = gamma * (1.0 + v * incidence);
+
+    // Relativistic beaming
+    texColor *= pow(abs(shift), BHP.beamExponent);
+
+    // Calculate gravitational redshift
+    shift *= sqrt(1 - (BHP.EventHorizon / rEval));
+
+    // Sample blackbody texture
+    uv.x = (shift - 0.5) / (2.0 - 0.5);
+    uv.y = (T - 1000.0) / (10000.0 - 1000.0);
+    float3 bbColor = TexDisk.SampleLevel(TexDiskSampler, uv, 0);
+
+    // Weight by noise strength and multiplier
+    float4 outColor = texColor.xxxx * float4(bbColor.xyz, 1.0);
+
+    // Weight by Stefan-Boltzmann curve
+    outColor *= pow(abs(T / BHP.diskTemp), 4);
+
+    // Return adjusted color
     return outColor;
+
 
 }
 
@@ -279,40 +337,35 @@ float4 GetDiskColor(float3 x, float3 xLast, BlackHoleProperties BHP, RenderingPr
 
 
 
-
-void BlackHole(float3 CameraPos, float3 CameraDir, inout float Mask, BlackHoleProperties BHP, inout float4 Color, Texture2D Tex, SamplerState TexSampler, Texture2D TexDisk, SamplerState TexDiskSampler, RenderingProperties RP, float Time) {
+void BlackHole(float3 CameraPos, inout float3 CameraDir, inout float Mask, BlackHoleProperties BHP, inout float4 Color, Texture2D Tex, SamplerState TexSampler, Texture2D TexDisk, SamplerState TexDiskSampler, RenderingProperties RP, float Time) {
 
     float3 RayPos = CameraPos;
     float3 RayDir = CameraDir;
-
-    RayDir = RayDir;
-
 
     float3 OldPos;
 
     float4 DiskColor;
 
-    bool inEventHorizon = false;
-
     for (int i = 0; i < STEPS; i++) 
     {
         if (length(RayPos) <= BHP.EventHorizon) {
-            inEventHorizon = true;
+            Mask = 0.0;
             break;
         }
 
         OldPos = RayPos;
         RayPos += RayDir + GravityForce(RayPos, RayDir, BHP);
-        RayDir = normalize(RayPos - OldPos);
+        RayDir = RayPos - OldPos;
 
         if (CheckEmpishereCrossing(OldPos, RayPos))
         {
             float2 DiskIntercept = GetDiskIntercept(OldPos, RayPos);
-            float CenterDistance = length(DiskIntercept);
-            if (CenterDistance > BHP.DiskStart &&  CenterDistance < BHP.DiskStart + BHP.DiskSize)
+            float CenterDistance = length(RayPos);
+            if (CenterDistance > BHP.DiskStart &&  CenterDistance < (BHP.DiskStart+BHP.DiskSize))
                 {
-                    DiskColor = GetDiskColor(RayPos, OldPos, BHP, RP, Time, TexDisk, TexDiskSampler);
-                    Color = Blend(Color, DiskColor);
+                    DiskColor = GetDiskColor(RayPos, OldPos, BHP, RP, Time, TexDisk, TexDiskSampler,DiskIntercept);
+                    //DiskColor = SampleDiskTexture(TexDisk, TexDiskSampler, DiskIntercept, BHP);
+                    Color+=DiskColor;
                 }    
         }
 
@@ -320,11 +373,7 @@ void BlackHole(float3 CameraPos, float3 CameraDir, inout float Mask, BlackHolePr
     }
 
     CameraDir = RayDir;
-    float4 skyBoxColor = 0.0;
 
-    if (!inEventHorizon)
-       skyBoxColor = Tex.Sample(TexSampler, CameraDir);
-
-    Color = Blend(Color, skyBoxColor);
 
 }
+
