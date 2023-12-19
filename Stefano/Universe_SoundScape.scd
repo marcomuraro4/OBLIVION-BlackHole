@@ -45,6 +45,15 @@ SynthDef.new(\scifiFM, {
 	Out.ar(0, car);
 }).add;
 
+c = Buffer.read(s, thisProcess.nowExecutingPath.dirname +/+ "Triangle.wav");
+
+SynthDef.new(\bellsWT,{
+	arg trig = 1, amp = 1, fq = 1, pos = 0, out;
+	var sig;
+	sig = PlayBuf.ar(2, c, fq, trig, pos, doneAction: 2);
+	Out.ar(0, sig * amp);
+}).add;
+
 (0.1).wait;
 
 ~scale = [0, 2, 5];
@@ -52,7 +61,8 @@ SynthDef.new(\scifiFM, {
 ~ampLow = 1;
 ~ampMid = 0;
 ~ampHigh = 0;
-~relAmpFM = 0.05;
+~relAmpFM = 0.1;
+~relAmpWT = 0.5;
 
 fork{
 	loop{
@@ -143,6 +153,21 @@ fork{
 	};
 };
 
+fork{
+	loop{
+		var t_WT = [10, 15, 20].choose;
+		var ampWT = Pwhite(0.2, 1, 800) * rrand(0.04, 0.13) * ~relAmpWT;
+		t_WT.wait;
+		x = Pbind(\instrument, \bellsWT,
+			\trig, 1,
+			\amp, ampWT,
+			\fq, Pwhite(0.94, 1.06, 800) + rrand(0.1, 0.4),
+			\pos, Prand([2000, 10000, 20000, 30000, 40000], 800),
+			\dur, 0.003
+		).play;
+	};
+};
+
 {
 	var sig = In.ar(0, 2);
 	sig = sig * 0.25;
@@ -158,8 +183,10 @@ fork{
 ~maxAmpMid = 0.8;
 ~minAmpHigh = 0;
 ~maxAmpHigh = 0.07;
-~minRelAmpFM = 0.05;
+~minRelAmpFM = 0.1;
 ~maxRelAmpFM = 1;
+~minRelAmpWT = 0.5;
+~maxRelAmpWT = 1;
 ~alpha = 0.5 * (sqrt(2) - 1 + sqrt(2 * sqrt(2) - 1));
 ~beta = - 1 / ((1 + ~alpha).squared);
 
@@ -174,9 +201,12 @@ OSCdef('OSCreceiver',
 	  ~ampMid = ~maxAmpMid - ((~maxAmpMid - ~minAmpMid) * distNorm);
 	  ~ampHigh = ~maxAmpHigh - ((~maxAmpHigh - ~minAmpHigh) * distNorm);
 	  ~relAmpFM = ~maxRelAmpFM - ((~maxRelAmpFM - ~minRelAmpFM) * distNorm);
+	  ~relAmpWT = ~maxRelAmpWT - ((~maxRelAmpWT - ~minRelAmpWT) * distNorm);
 	},
 "/pos_force");
 
 })
 
 )
+
+postln(thisProcess.nowExecutingPath.dirname +/+ "sounds/triangle.wav");
