@@ -196,6 +196,12 @@ OSCdef('OSCreceiver',
 	{ arg msg;
 	  var distNorm, forceNorm;
 	  distNorm = msg[1];
+	  if(distNorm < 0, {
+		   distNorm = 0;
+	  });
+	  if(distNorm > 1, {
+		   distNorm = 1;
+	  });
 	  forceNorm = ~beta + (1 / ((distNorm + ~alpha).squared));
 	  ~ampLow = ~minAmpLow + ((~maxAmpLow - ~minAmpLow) * forceNorm);
 	  ~ampMid = ~maxAmpMid - ((~maxAmpMid - ~minAmpMid) * distNorm);
@@ -208,5 +214,3 @@ OSCdef('OSCreceiver',
 })
 
 )
-
-postln(thisProcess.nowExecutingPath.dirname +/+ "sounds/triangle.wav");
