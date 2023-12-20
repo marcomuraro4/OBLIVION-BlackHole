@@ -209,7 +209,7 @@ OSCdef('OSCreceiver',
 	  ~relAmpFM = ~maxRelAmpFM - ((~maxRelAmpFM - ~minRelAmpFM) * distNorm);
 	  ~relAmpWT = ~maxRelAmpWT - ((~maxRelAmpWT - ~minRelAmpWT) * distNorm);
 	},
-"/pos_force");
+"/OSCTest");
 
 })
 
