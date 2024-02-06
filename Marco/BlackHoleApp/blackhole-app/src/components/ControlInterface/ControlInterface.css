@@ -1,0 +1,33 @@
+#interface {
+    width: 800px;
+    height: 600px;
+    border-radius: 8px;
+}
+
+#control-panel {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+}
+
+.controls-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+.control-box {
+    width: 45%;
+    height: 100%;
+    border-radius: 8px;
+    background-color: #9d3c07;
+}
+
+.outline-bar {
+    background-color: #9d3c07;
+    border-radius: 8px;
+}
+
+.sidebar {
+    width: 5%;
+    height: 100%;
+}

@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Righteous&family=Zen+Tokyo+Zoo&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: content-box;
+}
+
+#app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 100vh;
+    background-attachment: fixed;
+    background-image: url("./../../assets/img/blackhole-app-background-5.jpg");
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-size: cover;
+}
+
+h1 {
+    font-family: "Zen Tokyo Zoo", system-ui;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 45px;
+    color: white;
+    margin: 8px;
+}
+
+h2 {
+    font-family: 'Righteous', cursive;
+    font-size: 24px;
+    color: white;
+    margin: 4px;
+}
+
+h3 {
+    font-family: 'Righteous', cursive;
+    font-size: 12px;
+    color: white;
+    margin: 4px;
+}
+
+label {
+    position: absolute;
+    font-family: 'Righteous', cursive;
+    font-size: 20px;
+    color: white;
+    border-bottom: 12px;
+}
+
+.flex-container-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.flex-container-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
