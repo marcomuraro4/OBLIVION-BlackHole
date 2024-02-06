@@ -249,8 +249,9 @@ OSCdef('OSCreceiver',
 	  ~ampHigh = ~maxAmpHigh - ((~maxAmpHigh - ~minAmpHigh) * distNorm);
 	  ~relAmpFM = ~maxRelAmpFM - ((~maxRelAmpFM - ~minRelAmpFM) * distNorm);
 	  ~relAmpWT = ~maxRelAmpWT - ((~maxRelAmpWT - ~minRelAmpWT) * distNorm);
-	  var inNebula = false;
-	  if(inNebula, {
+	  var inNebula;
+	  inNebula = msg[2];
+	  if(inNebula == 0, {
 			if(~lowpassSynth.isPlaying) {
 				~lowpassSynth.set(\cut, XLine.kr(24000, 700, 2));
 			}
