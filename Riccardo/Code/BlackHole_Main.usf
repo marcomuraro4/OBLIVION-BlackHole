@@ -13,12 +13,30 @@ BlackHoleProperties BHP;
 BHP.Mass = Mass;
 BHP.EventHorizon = Mass*2;
 BHP.DiskStart = BHP.EventHorizon*3;
-BHP.DiskSize = 70;
-BHP.RotationSpeed = 2.0;
-BHP.DiskDensityBias = 0.7;
-BHP.diskTemp = 1000.0;
+BHP.DiskSize = DiskSize;
+BHP.DiskOuterRadius = BHP.DiskStart+BHP.DiskSize;
+BHP.RotationSpeed = RotationSpeed;
+BHP.DiskDensityBias = DiskDensityBias;
+BHP.DiskDensity = DiskDensity;
+BHP.diskTemp = DiskTemp;
 BHP.beamExponent = 2.0;
 BHP.falloffRate = 3;
+BHP.TexDisk = TexDisk;
+BHP.TexDiskSampler = TexDiskSampler;
+BHP.LightColor = LightColor;
+BHP.LightIntensity = LightIntensity;
+BHP.LightBias = LightBias;
+BHP.ShadowColor = ShadowColor;
+BHP.ShadowDensity = ShadowDensity;
+BHP.ShadowStepSize = ShadowStepSize;
+BHP.BandSize = BandSize;
+BHP.ColorMap = ColorMap;
+BHP.ColorMapSampler = ColorMapSampler;
+
+//Fog params
+BHP.FogHeight = FogHeight;
+BHP.FogDensity = FogDensity;
+BHP.FogExponent = sqrt(FogHeight)*5; //Just a little euristhic to scale the exponent according to height
 
 RenderingProperties RP;
 RP.stepSize = 0.1;
@@ -50,13 +68,15 @@ float3 InitDir = CameraVectorLS;
 //Jitter is used to avoid aliasing effects
 //(e.g. strange discontinuities in the accretion disk)
 //Basically add some displacement to the initial position
-float JitterAmount = 0.8; //Make it a parameters
+float JitterAmount = 1; //Make it a parameters
 
 Dir = InitDir;
 InitPos += InitDir * rand * JitterAmount * Scale.x;
 
 
 
-BlackHole(InitPos, Dir, Mask, BHP, Color, Tex, TexSampler, TexDisk, TexDiskSampler, RP, Time);
+Color = 0.0;
+Temp = 200;
+BlackHole(InitPos, Dir, Mask, BHP, Color, Tex, TexSampler, RP, Temp);
 
 return 1.0;
