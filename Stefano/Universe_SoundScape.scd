@@ -8,7 +8,7 @@ SynthDef(\scifiPad, {
 	    detune = 1e-3, ratio = 0.996,
 	    vibRate = 0.1, vibDepth = 0.004,
 	    t = 0.5, cutoff = 600 , amp = 0.5,
-	    flag = 0;
+		out = 0, flag = 0;
 	var env , freqEnv , sig , gate , vib , ffreq;
 	gate = Line.kr(1, 0, t);
 	env = EnvGen.kr(Env.linen(att, sus, rel), doneAction: 2);
@@ -24,40 +24,74 @@ SynthDef(\scifiPad, {
 	sig = sig.tanh * env;
 	if(flag == 0,{
 		ffreq = max(freqEnv * freq * 12, freq * (1.1,1.2..4).choose) + 100;
-		sig = MoogFF.ar(sig, ffreq, LFNoise2.kr( 1 / t, 1.4, 1.5)).tanh;
+		sig = MoogFF.ar(sig, ffreq, LFNoise2.kr(1 / t, 1.4, 1.5)).tanh;
 		sig = RLPF.ar(sig, 1e4, 0.9).tanh;
     },{
 		sig = MoogFF.ar(sig, cutoff, LFNoise2.kr(1 / t, 1.4, 1.5)).tanh;
         sig = RHPF.ar(sig, 300, 0.9).tanh;
     });
 	sig = Pan2.ar(sig * amp, LFNoise2.kr(t.rand));
-	Out.ar(0, sig);
+	Out.ar(out, sig);
 }).add;
 
 SynthDef.new(\scifiFM, {
 	arg carFreq = 500, modFreq = 150, modAmp = 200,
-	att = 0.01, sus = 0.5, rel = 1, pan = 0, amp = 0.3;
+	att = 0.01, sus = 0.5, rel = 1,
+	pan = 0, amp = 0.3, in, out = 0;
 	var car, mod, env;
 	env = EnvGen.kr(Env.linen(att, sus, rel), doneAction: 2);
 	mod = SinOsc.ar(modFreq, mul: modAmp);
 	car = SinOsc.ar(carFreq + mod) * env * amp;
 	car = Pan2.ar(car, pan);
-	Out.ar(0, car);
+	Out.ar(out, car);
 }).add;
 
 c = Buffer.read(s, thisProcess.nowExecutingPath.dirname +/+ "Triangle.wav");
 
 SynthDef.new(\bellsWT,{
-	arg trig = 1, amp = 1, fq = 1, pos = 0, out;
+	arg trig = 1, amp = 1, fq = 1, pos = 0, out = 0;
 	var sig;
 	sig = PlayBuf.ar(2, c, fq, trig, pos, doneAction: 2);
-	Out.ar(0, sig * amp);
+	Out.ar(out, sig * amp);
+}).add;
+
+SynthDef.new(\lowpass, {
+	arg cut = 24000, in, out = 0;
+	var sig;
+	sig = In.ar(in, 2);
+	sig = RLPF.ar(sig, cut);
+	Out.ar(out, sig);
+}).add;
+
+SynthDef.new(\reverb, {
+	arg in, out = 0;
+	var sig;
+	sig = In.ar(0, 2) * 0.25;
+	sig = Compander.ar(sig, sig, 0.75, 1, 0.75, 0.1, 0.4);
+	sig = (sig * 0.5) + GVerb.ar(HPF.ar(sig, 60), 20, 20, mul: 0.5).tanh;
+	sig = Limiter.ar(LeakDC.ar(sig));
+	Out.ar(out, sig);
 }).add;
 
 (0.1).wait;
 
+~lowpassBus = Bus.audio(s, 2);
+~reverbBus = Bus.audio(s, 2);
+
+~lowpassSynth = Synth.new(
+		\lowpass, [
+			\in, ~lowpassBus,
+			\out, ~reverbBus,
+]).register;
+
+~reverbSynth = Synth.new(
+		\reverb, [
+			\in, ~reverbBus,
+]).register;
+
 ~scale = [0, 2, 5];
 ~fund = 19;
+
 ~ampLow = 1;
 ~ampMid = 0;
 ~ampHigh = 0;
@@ -66,7 +100,7 @@ SynthDef.new(\bellsWT,{
 
 fork{
 	loop{
-		var t = [20, 35].choose;
+		var t = [10, 20, 30].choose;
 		~fund = 12 + [0, 3, 7, 10, 14].choose;
 		t.wait;
 	};
@@ -94,7 +128,8 @@ fork{
 				\t, t,
 				\cutoff, 300,
 				\amp, ~ampLow,
-				\flag, 0
+				\flag, 0,
+				\out, ~lowpassBus
 		]);
 		~synthMid = Synth.new(
 			\scifiPad, [
@@ -112,7 +147,8 @@ fork{
 				\t, t,
 				\cutoff, 1200,
 				\amp, ~ampMid,
-				\flag, 1
+				\flag, 1,
+				\out, ~lowpassBus
 		]);
 		~synthHigh = Synth.new(
 			\scifiPad, [
@@ -131,6 +167,7 @@ fork{
 				\cutoff, 2200,
 				\amp, ~ampHigh,
 				\flag, 1
+				\out, ~lowpassBus
 		]);
 		t.wait;
 	};
@@ -148,6 +185,7 @@ fork{
 				\sus, rrand(0.01, 0.5),
 				\pan, rrand(-1.0, 1.0),
 				\amp, ampFM,
+				\out, ~lowpassBus
 		]);
 		t_FX.wait;
 	};
@@ -163,11 +201,13 @@ fork{
 			\amp, ampWT,
 			\fq, Pwhite(0.94, 1.06, 800) + rrand(0.1, 0.4),
 			\pos, Prand([2000, 10000, 20000, 30000, 40000], 800),
-			\dur, 0.003
+			\dur, 0.003,
+			\out, ~lowpassBus
 		).play;
 	};
 };
 
+/*
 {
 	var sig = In.ar(0, 2);
 	sig = sig * 0.25;
@@ -176,6 +216,7 @@ fork{
 	sig = Limiter.ar(LeakDC.ar(sig));
 	ReplaceOut.ar(0, sig)
 }.play(addAction: \addToTail);
+*/
 
 ~minAmpLow = 1;
 ~maxAmpLow = 1.25;
@@ -208,6 +249,16 @@ OSCdef('OSCreceiver',
 	  ~ampHigh = ~maxAmpHigh - ((~maxAmpHigh - ~minAmpHigh) * distNorm);
 	  ~relAmpFM = ~maxRelAmpFM - ((~maxRelAmpFM - ~minRelAmpFM) * distNorm);
 	  ~relAmpWT = ~maxRelAmpWT - ((~maxRelAmpWT - ~minRelAmpWT) * distNorm);
+	  var inNebula = false;
+	  if(inNebula, {
+			if(~lowpassSynth.isPlaying) {
+				~lowpassSynth.set(\cut, XLine.kr(24000, 700, 2));
+			}
+	  }, {
+			if(~lowpassSynth.isPlaying) {
+				~lowpassSynth.set(\cut, XLine.kr(700, 24000, 2));
+			}
+	  });
 	},
 "/OSCTest");
 
