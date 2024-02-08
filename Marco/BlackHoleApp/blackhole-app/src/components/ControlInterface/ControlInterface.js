@@ -1,26 +1,48 @@
-import MassControl from '../MassControl/MassControl.vue'
-import TemperatureControl from "../TemperatureControl/TemperatureControl.vue";
-import DiskSizeControl from "../DiskSizeControl/DiskSizeControl.vue";
-import RotationSpeedControl from "../RotationSpeedControl/RotationSpeedControl.vue"
+import ControlPanel from '../ControlPanel/ControlPanel.vue'
 
 import axios from 'axios'
 
 export default {
     name: 'ControlInterface',
     components: {
-        MassControl,
-        TemperatureControl,
-        DiskSizeControl,
-        RotationSpeedControl
+        ControlPanel
     },
     data() {
         return {
             title: 'OBLIVION',
             engineState: {
-                mass: 1,
-                temperature: 200,
-                diskSize: 1,
-                rotationSpeed: 1
+                mass: {
+                    name: 'Mass',
+                    label: 'mass',
+                    value: 1,
+                    min: 0.01,
+                    max: 100,
+                    display: 'up'
+                },
+                temperature: {
+                    name: 'Temperature',
+                    label: 'temperature',
+                    value: 200,
+                    min: 0.01,
+                    max: 500,
+                    display: 'up'
+                },
+                diskSize: {
+                    name: 'Disk Size',
+                    label: 'diskSize',
+                    value: 1,
+                    min: 0.01,
+                    max: 10,
+                    display: 'down'
+                },
+                rotationSpeed: {
+                    name: 'Rotation Speed',
+                    label: 'rotationSpeed',
+                    value: 1,
+                    min: 0.01,
+                    max: 10,
+                    display: 'down'
+                }
             }
         }
     },
@@ -28,7 +50,7 @@ export default {
         sendData(update) {
             axios
                 .put(
-                    'http://localhost:30010/remote/preset/BlackHolePreset/property/' + update.name + ' (M_BlackHole_Inst)',
+                    'http://localhost:30010/remote/preset/BlackHolePreset/property/' + this.engineState[update.label].name + ' (M_BlackHole_Inst)',
                     {
                         "PropertyValue": update.value,
                         "GenerateTransaction": true
@@ -37,30 +59,14 @@ export default {
                 .then(() => console.log("PUT Request"));
         },
         updateState(update) {
-            switch(update.name) {
-                case 'mass':
-                    this.engineState.mass = update.value;
-                    console.log("Mass updated: ", update.value);
-                    break;
-                case 'temperature':
-                    this.engineState.temperature = update.value;
-                    console.log("Temperature updated: ", update.value);
-                    break;
-                case 'Disk Size':
-                    this.engineState.diskSize = update.value;
-                    console.log("Disk Size updated: ", update.value);
-                    this.sendData(update);
-                    break;
-                case 'rotationSpeed':
-                    this.engineState.rotationSpeed = update.value;
-                    console.log("Rotation Speed updated: ", update.value);
-                    break;
-            }
+            this.engineState[update.label].value = update.value;
+            console.log(this.engineState[update.label].name + " updated: ", update.value);
+            //this.sendData(update);
         }
     },
     mounted() {
-        axios
+        /*axios
             .get('http://localhost:30010/remote/preset/BlackHolePreset/property/DiskSize (M_BlackHole_Inst)')
-            .then(() => this.engineState.diskSize = 200);
+            .then(() => this.engineState.diskSize.value = 200);*/
     }
 }

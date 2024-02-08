@@ -1,10 +1,15 @@
 <template>
   <div class="component-wrapper flex-container-column">
-    <div class="knob-wrapper flex-container-column">
+    <div v-if="display == 'up'" class="title-container">
+      <h2>{{ name }}</h2>
+    </div>
+    <div
+        class="knob-wrapper flex-container-column"
+        :class="{'knob-wrapper-down': (display == 'down')}">
       <RoundSlider
-          v-model="diskSize"
-          min="1"
-          max="10"
+          v-model="value"
+          :min="roundSlider.min"
+          :max="roundSlider.max"
           :step="roundSlider.step"
           :radius="roundSlider.radius"
           :width="roundSlider.width"
@@ -15,14 +20,14 @@
           :showTooltip="roundSlider.showTooltip"
           :rangeColor="roundSlider.rangeColor"
       />
-      <label>{{ diskSize }}</label>
+      <label>{{ value }}</label>
     </div>
-    <div class="title-container">
-      <h2>Disk Size</h2>
+    <div v-if="(display == 'down')" class="title-container">
+      <h2>{{ name }}</h2>
     </div>
   </div>
 </template>
 
-<script src="./DiskSizeControl.js"></script>
+<script src="./ControlPanel.js"></script>
 
-<style src="./DiskSizeControl.css"></style>
+<style src="./ControlPanel.css"></style>

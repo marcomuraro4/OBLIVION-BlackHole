@@ -4,14 +4,14 @@
     <div id="control-panel" class="flex-container-column">
       <div class="controls-wrapper flex-container-row">
         <div class="control-box">
-          <MassControl
-              :engineState="engineState"
+          <ControlPanel
+              :controlParam="engineState.mass"
               @stateChange="updateState"
           />
         </div>
         <div class="control-box">
-          <TemperatureControl
-              :engineState="engineState"
+          <ControlPanel
+              :controlParam="engineState.temperature"
               @stateChange="updateState"
           />
         </div>
@@ -21,15 +21,15 @@
       </div>
       <div class="controls-wrapper flex-container-row">
         <div class="control-box">
-          <DiskSizeControl
-              :engineState="engineState"
-              @stateChanged="updateState"
+          <ControlPanel
+              :controlParam="engineState.diskSize"
+              @stateChange="updateState"
           />
         </div>
         <div class="control-box">
-          <RotationSpeedControl
-              :engineState="engineState"
-              @stateChanged="updateState"
+          <ControlPanel
+              :controlParam="engineState.rotationSpeed"
+              @stateChange="updateState"
           />
         </div>
       </div>

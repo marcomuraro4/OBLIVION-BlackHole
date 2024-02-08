@@ -10,6 +10,7 @@
     width: 100%;
 }
 
-.knob-wrapper {
+.knob-wrapper-down {
+    padding-top: 30px;
     position: relative;
 }
