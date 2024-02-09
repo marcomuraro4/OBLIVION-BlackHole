@@ -1,16 +1,18 @@
 import RoundSlider from 'vue-three-round-slider'
 
 export default {
-    name: 'MassControl',
+    name: 'ControlPanel',
     components: {
         RoundSlider
     },
     props: {
-        engineState: Object
+        controlParam: Object
     },
     data() {
         return {
             roundSlider: {
+                min: this.controlParam.min,
+                max: this.controlParam.max,
                 step: 0.01,
                 radius: 80,
                 width: 12,
@@ -21,13 +23,16 @@ export default {
                 showTooltip: false,
                 rangeColor: 'white'
             },
-            mass: this.engineState.mass
+            name: this.controlParam.name,
+            label: this.controlParam.label,
+            value: this.controlParam.value,
+            display: this.controlParam.display
         }
     },
     watch: {
-        mass() {
-            console.log('Mass changed:', this.mass);
-            this.$emit("stateChange", {name: 'mass', value: this.mass})
+        value() {
+            console.log(this.name + ' changed:', this.value);
+            this.$emit("stateChange", {label: this.label, value: this.value})
         }
     }
 }

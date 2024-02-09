@@ -58,6 +58,10 @@ label {
     border-bottom: 12px;
 }
 
+.knob-wrapper {
+    position: relative;
+}
+
 .flex-container-row {
     display: flex;
     flex-direction: row;
