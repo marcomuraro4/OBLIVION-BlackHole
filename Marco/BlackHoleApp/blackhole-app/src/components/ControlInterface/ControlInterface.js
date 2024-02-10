@@ -1,6 +1,19 @@
 import ControlPanel from '../ControlPanel/ControlPanel.vue'
 
-import axios from 'axios'
+//import axios from 'axios'
+
+import OSC from 'osc-js'
+
+const options = {
+    host: '127.0.0.1',
+    port: 57120
+};
+
+const plugin = new OSC.WebsocketClientPlugin(options);
+const osc = new OSC({ plugin: plugin });
+osc.open();
+
+//console.log(osc);
 
 export default {
     name: 'ControlInterface',
@@ -47,7 +60,7 @@ export default {
         }
     },
     methods: {
-        sendData(update) {
+        /*sendData(update) {
             axios
                 .put(
                     'http://localhost:30010/remote/preset/BlackHolePreset/property/' + this.engineState[update.label].name + ' (M_BlackHole_Inst)',
@@ -57,11 +70,17 @@ export default {
                     }
                     )
                 .then(() => console.log("PUT Request"));
+        },*/
+        sendOSCMessage(update) {
+            const message = new OSC.Message('/OSCTest', update.value);
+            osc.send(message);
+            console.log("OSC Address: " + message.address + ", Argument: " + update.value);
         },
         updateState(update) {
             this.engineState[update.label].value = update.value;
             console.log(this.engineState[update.label].name + " updated: ", update.value);
             //this.sendData(update);
+            this.sendOSCMessage(update);
         }
     },
     mounted() {
