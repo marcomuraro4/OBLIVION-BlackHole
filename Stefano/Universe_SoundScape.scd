@@ -57,13 +57,50 @@ SynthDef.new(\bellsWT,{
 }).add;
 
 SynthDef.new(\particleNoise, {
-	arg amp = 0.3, out = 0;
+	arg amp = 1, out = 0;
 	var dseq, trig, sig;
 	dseq = Dseq([SinOsc.ar(45).range(-5, 12), SinOsc.ar(SinOsc.ar(0.285).range(42, 48)).range(-9, 19), 9, 0, -12], inf);
 	trig = Impulse.ar(SinOsc.ar(0.2).range(44, 46));
 	sig = SinOsc.ar((25 + Demand.ar(trig, 0, dseq)).midicps, 0, 0.5);
 	sig = RHPF.ar(sig, 200);
-	sig = Pan2.ar(sig, 0, 1);
+	sig = Pan2.ar(sig, 0, amp);
+	Out.ar(out, sig);
+}).add;
+
+SynthDef(\windWhip, {
+	arg amp = 1, out = 0;
+	var whooshPitch, whooseVol, swish, swishPitch = rrand(750, 1100), noise, output, timeScale = rrand(0.5, 2.5),
+	trump, trumpPitch = rrand(200, 600), chain, pan, sig, stopEnv;
+	whooshPitch = EnvGen.kr(
+		Env(
+			[0.8, 1.0, 0.9, 0.7, 0.5, 0.3, 0.24, 0.12, 0.0],
+			[0.08, 0.2, 0.15, 0.11, 0.08, 0.09, 0.06, 0.18],
+			2
+		), timeScale: 1.3 * timeScale
+	).lag(0.2);
+	whooseVol = EnvGen.kr(
+		Env(
+			[0.0, 0.2, 0.7, 0.9, 1.0, 0.8, 0.6, 0.43, 0.22, 0.0],
+			[0.4, 0.5, 0.2, 0.15, 0.17, 0.11, 0.1, 0.16, 0.28],
+			2
+		), timeScale: 0.9 * timeScale
+	).lag(0.2, 1.5);
+	stopEnv = EnvGen.kr(Env([1, 1], [5]), doneAction: 2);
+	whooseVol = whooseVol * LFNoise1.kr(37.2, 0.2, 1).lag(0.2) * stopEnv;
+	noise = Mix(CombC.ar(WhiteNoise.ar(rrand(0.001, 0.1)), 0.1, [whooshPitch.exprange(0.16, 0.00011), whooshPitch.exprange(0.19, 0.00013)], 0.09));
+	noise = noise + BrownNoise.ar(0.1);
+	swishPitch = swishPitch * LFNoise0.kr(365, 0.2, 1);
+	swishPitch = swishPitch * whooshPitch.range(0.8, 1.3);
+	swish = Mix.fill(3, {|i| SinOsc.ar(swishPitch + (i * whooshPitch.exprange(45, 1)), rrand(0.0, 1.0), 0.4)});
+	trumpPitch = trumpPitch * whooshPitch.range(0.92, 1.08);
+	trump = Mix.fill(3, {|i| SinOscFB.ar(trumpPitch * LFNoise0.kr(28, 0.06, 1).lag(0.8) * (0.8 + (i * 0.05)), 1.2, 0.8)}) * 0.6;
+	trump = RHPF.ar(trump, whooshPitch.range(120, 335), 0.2);
+	chain = FFT(LocalBuf(2048), trump);
+	chain = PV_BinShift(chain, WhiteNoise.kr.range(0.96, 1.01), whooshPitch.range(24, 28));
+	trump = IFFT(chain) * 0.2;
+	pan = Line.kr(-0.7, 0.7, 3);
+	sig = (noise + swish + trump) * whooseVol;
+	sig = Pan2.ar(sig, pan, amp);
 	Out.ar(out, sig);
 }).add;
 
@@ -95,6 +132,7 @@ SynthDef.new(\reverb, {
 ~ampHigh = 0;
 ~relAmpFM = 0.1;
 ~relAmpWT = 0.5;
+~ampPN = 0;
 
 fork{
 	loop{
@@ -207,7 +245,7 @@ fork{
 
 ~synthFM = Synth.new(
 	\particleNoise, [
-		\amp, 2,
+		\amp, ~ampPN,
 		\out, ~reverbBus
 ]);
 
@@ -221,6 +259,8 @@ fork{
 ~maxRelAmpFM = 1;
 ~minRelAmpWT = 0.5;
 ~maxRelAmpWT = 1;
+~minAmpPN = 0;
+~maxAmpPN = 1.5;
 ~alpha = 0.5 * (sqrt(2) - 1 + sqrt(2 * sqrt(2) - 1));
 ~beta = - 1 / ((1 + ~alpha).squared);
 
@@ -228,7 +268,7 @@ NetAddr("127.0.0.1", 57120);
 
 OSCdef('OSCreceiver',
 	{ arg msg;
-	  var distNorm, forceNorm, inNebula;
+	  var distNorm, forceNorm;
 	  distNorm = msg[1];
 	  if(distNorm < 0, {
 		   distNorm = 0;
@@ -242,6 +282,7 @@ OSCdef('OSCreceiver',
 	  ~ampHigh = ~maxAmpHigh - ((~maxAmpHigh - ~minAmpHigh) * distNorm);
 	  ~relAmpFM = ~maxRelAmpFM - ((~maxRelAmpFM - ~minRelAmpFM) * distNorm);
 	  ~relAmpWT = ~maxRelAmpWT - ((~maxRelAmpWT - ~minRelAmpWT) * distNorm);
+	  ~ampPN = ~maxAmpPN - ((~maxAmpPN - ~minAmpPN) * distNorm);
 	},
 "/OSCTest");
 
