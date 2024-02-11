@@ -56,6 +56,17 @@ SynthDef.new(\bellsWT,{
 	Out.ar(out, sig * amp);
 }).add;
 
+SynthDef.new(\particleNoise, {
+	arg amp = 0.3, out = 0;
+	var dseq, trig, sig;
+	dseq = Dseq([SinOsc.ar(45).range(-5, 12), SinOsc.ar(SinOsc.ar(0.285).range(42, 48)).range(-9, 19), 9, 0, -12], inf);
+	trig = Impulse.ar(SinOsc.ar(0.2).range(44, 46));
+	sig = SinOsc.ar((25 + Demand.ar(trig, 0, dseq)).midicps, 0, 0.5);
+	sig = RHPF.ar(sig, 200);
+	sig = Pan2.ar(sig, 0, 1);
+	Out.ar(out, sig);
+}).add;
+
 SynthDef.new(\reverb, {
 	arg in, out = 0;
 	var sig;
@@ -193,6 +204,12 @@ fork{
 		).play;
 	};
 };
+
+~synthFM = Synth.new(
+	\particleNoise, [
+		\amp, 2,
+		\out, ~reverbBus
+]);
 
 ~minAmpLow = 1;
 ~maxAmpLow = 1.25;
