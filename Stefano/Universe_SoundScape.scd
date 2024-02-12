@@ -283,6 +283,13 @@ OSCdef('OSCreceiver',
 	  massNorm = (msg[3] - ~minMass) / (~maxMass - ~minMass);
 	  rotSpeedNorm = (msg[4] - ~minRotSpeed) / (~maxRotSpeed - ~minRotSpeed);
 	  tempNorm = (msg[5] - ~minTemp) / (~maxTemp - ~minTemp);
+	  /*
+	  distNorm.postln;
+	  diskSizeNorm.postln;
+	  massNorm.postln;
+	  rotSpeedNorm.postln;
+	  tempNorm.postln;
+	  */
 	  if(distNorm < 0, {
 		   distNorm = 0;
 	  });
@@ -296,7 +303,7 @@ OSCdef('OSCreceiver',
 	  ~relAmpWT = ~maxRelAmpWT - ((~maxRelAmpWT - ~minRelAmpWT) * distNorm);
 	  ~ampPN = ~maxAmpPN - ((~maxAmpPN - ~minAmpPN) * tempNorm);
 	},
-"/OSCTest");
+"/BlackHoleParams");
 
 })
 
