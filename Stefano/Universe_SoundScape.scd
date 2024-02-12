@@ -249,12 +249,12 @@ fork{
 		\out, ~reverbBus
 ]);
 
-~minAmpLow = 1;
-~maxAmpLow = 1.25;
+~minAmpLow = 0.75;
+~maxAmpLow = 1.5;
 ~minAmpMid = 0;
 ~maxAmpMid = 0.8;
 ~minAmpHigh = 0;
-~maxAmpHigh = 0.07;
+~maxAmpHigh = 0.1;
 ~minRelAmpFM = 0.1;
 ~maxRelAmpFM = 1;
 ~minRelAmpWT = 0.5;
@@ -263,26 +263,38 @@ fork{
 ~maxAmpPN = 1.5;
 ~alpha = 0.5 * (sqrt(2) - 1 + sqrt(2 * sqrt(2) - 1));
 ~beta = - 1 / ((1 + ~alpha).squared);
+~minDiskSize = 80;
+~maxDiskSize = 500;
+~minMass = 1;
+~maxMass = 20;
+~minRotSpeed = 0;
+~maxRotSpeed = 20;
+~minTemp = 1000;
+~maxTemp = 10000;
 
 NetAddr("127.0.0.1", 57120);
 
 OSCdef('OSCreceiver',
 	{ arg msg;
-	  var distNorm, forceNorm;
+	  var distNorm, forceNorm, diskSizeNorm, massNorm, rotSpeedNorm, tempNorm;
 	  distNorm = msg[1];
+	  forceNorm = ~beta + (1 / ((distNorm + ~alpha).squared));
+	  diskSizeNorm = (msg[2] - ~minDiskSize) / (~maxDiskSize - ~minDiskSize);
+	  massNorm = (msg[3] - ~minMass) / (~maxMass - ~minMass);
+	  rotSpeedNorm = (msg[4] - ~minRotSpeed) / (~maxRotSpeed - ~minRotSpeed);
+	  tempNorm = (msg[5] - ~minTemp) / (~maxTemp - ~minTemp);
 	  if(distNorm < 0, {
 		   distNorm = 0;
 	  });
 	  if(distNorm > 1, {
 		   distNorm = 1;
 	  });
-	  forceNorm = ~beta + (1 / ((distNorm + ~alpha).squared));
-	  ~ampLow = ~minAmpLow + ((~maxAmpLow - ~minAmpLow) * forceNorm);
+	  ~ampLow = ~minAmpLow + ((~maxAmpLow - ~minAmpLow) * massNorm);
 	  ~ampMid = ~maxAmpMid - ((~maxAmpMid - ~minAmpMid) * distNorm);
-	  ~ampHigh = ~maxAmpHigh - ((~maxAmpHigh - ~minAmpHigh) * distNorm);
+	  ~ampHigh = ~maxAmpHigh - ((~maxAmpHigh - ~minAmpHigh) * diskSizeNorm);
 	  ~relAmpFM = ~maxRelAmpFM - ((~maxRelAmpFM - ~minRelAmpFM) * distNorm);
 	  ~relAmpWT = ~maxRelAmpWT - ((~maxRelAmpWT - ~minRelAmpWT) * distNorm);
-	  ~ampPN = ~maxAmpPN - ((~maxAmpPN - ~minAmpPN) * distNorm);
+	  ~ampPN = ~maxAmpPN - ((~maxAmpPN - ~minAmpPN) * tempNorm);
 	},
 "/OSCTest");
 
