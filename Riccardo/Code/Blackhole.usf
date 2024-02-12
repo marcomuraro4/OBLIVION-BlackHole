@@ -181,66 +181,63 @@ float2 rotateUV(float2 UV, float2 Center, float AngularFrequency) {
 }
 
 
-//Get Disk color using a black body radiation map
-float4 GetDiskColor(BlackHoleProperties BHP, float2 DiskIntercept)
+// Get color of accretion disk
+float4 GetDiskColor(float3 x, float3 xLast, BlackHoleProperties BHP)
 {
-
     //Convert input vector to polar coordinates
     //Now doing this every time is a bit slow
     //We should consider which system to use as default coord system...
 
-    BHP.diskTemp = 100;
-    BHP.beamExponent=1;
-
-
-    float3 x = CartesianToPolar(float3(DiskIntercept.xy, 0));
+    x = CartesianToPolar(x);
+    xLast = CartesianToPolar(xLast);
 
     // Calculate noise texture UV coordinates
     float2 uv;
 
-    float rEval = x.x; //Average radius
-    float phEval = x.z; //Average azimuthal angle
+    float rEval = (x.x + xLast.x) / 2.0; //Average radius
+    float phEval = (x.z + xLast.z) / 2.0; //Average azimuthal angle
     uv.x = phEval / (2.0 * PI); //Map full circle on [0,1] segment
-    uv.y = (rEval - BHP.DiskStart) / BHP.DiskSize; //Map radial position on accretion disk to [0, 1] segment
+    uv.y = max(0, (rEval - BHP.DiskStart)) / BHP.DiskSize; //Map radial position on accretion disk to [0, 1] segment
+
 
     //Physics effects
 
     // Calculate temperature
     float rFactor = pow(abs(BHP.DiskStart / rEval), 0.75);
-    float T = BHP.diskTemp * rFactor;
+    float T = BHP.diskTemp * (1-pow(uv.y, 0.75)); //Just an heuristic
 
     // Calculate doppler shift
     float v = sqrt(BHP.EventHorizon / (2.0 * rEval));
     float gamma = 1.0 / sqrt(1.0 - (v * v));
-    float incidence = x.z * rEval / length(x * float3(1.0, rEval, rEval));
+    float3 xDiff = xLast - x;
+    float incidence = xDiff.z * rEval / length(xDiff * float3(1.0, rEval, rEval));
     float shift = gamma * (1.0 + v * incidence);
 
-
-    // Relativistic beaming
-    //texDensity *= pow(abs(shift), BHP.beamExponent);
 
     // Calculate gravitational redshift
     shift *= sqrt(1 - (BHP.EventHorizon / rEval));
 
     // Sample blackbody texture
     uv.x = (shift - 0.5) / (2.0 - 0.5);
+    uv.x = (1 - uv.x); //Reverse
     uv.y = (T - 1000.0) / (10000.0 - 1000.0);
-    float4 bbColor = BHP.ColorMap.SampleLevel(BHP.ColorMapSampler, uv, 0);
+    float3 bbColor = BHP.ColorMap.SampleLevel(BHP.ColorMapSampler, uv, 0);
 
     // Weight by noise strength and multiplier
-    float4 density = 1;//texDensity.xxxx;
-    float4 outColor = density * float4(bbColor.xyz, 1.0);
+    float4 outColor = float4(bbColor.xyz, 1.0);
 
     // Weight by Stefan-Boltzmann curve
     outColor *= pow(abs(T / BHP.diskTemp), 4);
 
-
-    //return float4(1, 1, 1, 1);
+    // Return adjusted color
     return outColor;
+
+
 }
 
+
 //V1
-float SampleDiskTexture(float2 DiskIntercept, BlackHoleProperties BHP, float MipLevel)
+float4 SampleDiskTexture(float2 DiskIntercept, BlackHoleProperties BHP, float MipLevel, float3 OldPos, float3 NewPos)
 {
     //Version with rotation
 
@@ -259,8 +256,8 @@ float SampleDiskTexture(float2 DiskIntercept, BlackHoleProperties BHP, float Mip
 
 
     float2 UV = DiskIntercept / (2*BHP.DiskOuterRadius) - 0.5;
-    float2 UV1 = rotateUV(UV, 0.5, OrbitalFrequency1*2*PI *0.01);
-    float2 UV2 = rotateUV(UV, 0.5, OrbitalFrequency2*2*PI *0.01);
+    float2 UV1 = rotateUV(UV, 0.5, OrbitalFrequency1*2*PI *BHP.RotationSpeed);
+    float2 UV2 = rotateUV(UV, 0.5, OrbitalFrequency2*2*PI *BHP.RotationSpeed);
     float4 DiskSample1 = BHP.TexDisk.SampleLevel(BHP.TexDiskSampler, UV1, MipLevel);
     float4 DiskSample2 = BHP.TexDisk.SampleLevel(BHP.TexDiskSampler, UV2, MipLevel);
 
@@ -275,14 +272,14 @@ float SampleDiskTexture(float2 DiskIntercept, BlackHoleProperties BHP, float Mip
     Density*=(1/(1-BHP.DiskDensityBias));
     Density*=BHP.DiskDensity; //Multiply by desired density range
     
-    return Density;
+    //return Density;
 
     //If we also want to get the color
 
     //Now sample the color
-    //float4 outColor =  GetDiskColor(BHP, DiskIntercept);
-    //outColor.w = Density;
-    //return outColor;
+    float4 outColor =  GetDiskColor(OldPos, NewPos, BHP);
+    outColor.w = Density;
+    return outColor;
 
 }
 
@@ -324,6 +321,11 @@ float SampleDiskTextureV2(float2 DiskIntercept, BlackHoleProperties BHP, float M
     Density*=BHP.DiskDensity; //Multiply by desired density range
     return Density;
 
+    //Now sample the color
+    float4 outColor =  GetDiskColor(OldPos, NewPos, BHP);
+    outColor.w = Density;
+    return outColor;
+
 }
 
 
@@ -359,8 +361,11 @@ float ComputeLighting(float3 RayPos, BlackHoleProperties BHP)
 
 
 
+
+
+
 //Version with the color sampling inside
-void BlackHoleV2(float3 CameraPos, inout float3 CameraDir, inout float Mask, BlackHoleProperties BHP, inout float4 Color, Texture2D Tex, SamplerState TexSampler, RenderingProperties RP, float Time) {
+void BlackHole(float3 CameraPos, inout float3 CameraDir, inout float Mask, BlackHoleProperties BHP, inout float4 Color, Texture2D Tex, SamplerState TexSampler, RenderingProperties RP, float Time) {
 
     float3 RayPos = CameraPos;
     float3 RayDir = CameraDir;
@@ -401,7 +406,7 @@ void BlackHoleV2(float3 CameraPos, inout float3 CameraDir, inout float Mask, Bla
             Density = 0.0;
 
             float FogDensity = GetFogDensity(RayPos, BHP); //Get the density from the fog density curve
-            float4 FogSample = SampleDiskTexture(RayPos.xy, BHP, 5); //Sample the fog from the texture
+            float4 FogSample = SampleDiskTexture(RayPos.xy, BHP, 5, OldPos, RayPos); //Sample the fog from the texture
             FogDensity *= FogSample.w; //Scale Density by density of the texture
 
             float3 LightEnergy = ComputeLighting(RayPos, BHP) * BHP.LightIntensity * BHP.LightColor; //Compute the light reaching this point
@@ -410,7 +415,6 @@ void BlackHoleV2(float3 CameraPos, inout float3 CameraDir, inout float Mask, Bla
             float AccumulatedShadow = 0;
 
             float4 DiskSample = 0;
-            DiskSample.w = 1;
             float3 DiskEnergy = 0;
             if (CheckEmpishereCrossing(OldPos, RayPos))
             {
@@ -418,7 +422,7 @@ void BlackHoleV2(float3 CameraPos, inout float3 CameraDir, inout float Mask, Bla
                 float CenterDistance = length(DiskIntercept);
                 if (CenterDistance > BHP.DiskStart &&  CenterDistance < (BHP.DiskOuterRadius))
                     {
-                        DiskSample = float4(1, 1, 1, 1);//SampleDiskTexture(DiskIntercept, BHP, 0); //Sample the texture for accretion disk
+                        DiskSample = SampleDiskTexture(RayPos.xy, BHP, 0, OldPos, RayPos); //Sample the texture for accretion disk
                         DiskEnergy = LightEnergy * DiskSample.xyz; //Color the sampled disk according to reaching light
 
                         if (DiskSample.w > 0.000001) //Don't do raymarch if density is already low
@@ -443,12 +447,12 @@ void BlackHoleV2(float3 CameraPos, inout float3 CameraDir, inout float Mask, Bla
                                     //Sample both disk and fog
 
                                     //Sample texture disk (density only)
-                                    DiskLightDensity=1;//SampleDiskTexture(SamplePosition, BHP, 0).w;
+                                    DiskLightDensity=SampleDiskTexture(RayPos.xy, BHP, 0, OldPos, RayPos).w;
 
 
                                     //Sample texture fog (density only)
                                     //(Fog density will be always maximum value if we are in the accretion disk plane)
-                                    FogLightDensity=1;//SampleDiskTexture(SamplePosition, BHP, 5).w*BHP.FogDensity;
+                                    FogLightDensity=SampleDiskTexture(RayPos.xy, BHP, 5, OldPos, RayPos).w*BHP.FogDensity;
 
                                     AccumulatedShadow+=DiskDensity+FogDensity; //Accumulate the density
                                 
@@ -483,7 +487,7 @@ void BlackHoleV2(float3 CameraPos, inout float3 CameraDir, inout float Mask, Bla
 
 }
 
-void BlackHole(float3 CameraPos, inout float3 CameraDir, inout float Mask, BlackHoleProperties BHP, inout float4 Color, Texture2D Tex, SamplerState TexSampler, RenderingProperties RP, inout float Temp) {
+void BlackHoleNoColor(float3 CameraPos, inout float3 CameraDir, inout float Mask, BlackHoleProperties BHP, inout float4 Color, Texture2D Tex, SamplerState TexSampler, RenderingProperties RP, inout float Temp) {
 
     float3 RayPos = CameraPos;
     float3 RayDir = CameraDir;
@@ -527,6 +531,7 @@ void BlackHole(float3 CameraPos, inout float3 CameraDir, inout float Mask, Black
             FogDensity *= SampleDiskTexture(RayPos.xy, BHP, 5);
 
             float3 LightEnergy = ComputeLighting(RayPos, BHP) * BHP.LightIntensity * BHP.LightColor; //Compute the light reaching this point
+            LightEnergyBlackBody = ComputeLightingBlackBody(RayPos, BHP); 
             float3 FogEnergy = LightEnergy * FogDensity; //Color the fog sample according to light reaching it
 
             float AccumulatedShadow = 0;
