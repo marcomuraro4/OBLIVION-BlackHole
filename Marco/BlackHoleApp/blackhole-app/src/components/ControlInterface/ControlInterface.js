@@ -28,32 +28,36 @@ export default {
                 mass: {
                     name: 'Mass',
                     label: 'mass',
-                    value: 1,
-                    min: 0.01,
-                    max: 100,
+                    unrealLabel: 'mass',
+                    value: 5,
+                    min: 1,
+                    max: 20,
                     display: 'up'
                 },
                 temperature: {
                     name: 'Temperature',
                     label: 'temperature',
-                    value: 200,
-                    min: 0.01,
-                    max: 500,
+                    unrealLabel: 'DiskTemp',
+                    value: 1000,
+                    min: 1000,
+                    max: 10000,
                     display: 'up'
                 },
                 diskSize: {
                     name: 'Disk Size',
                     label: 'diskSize',
-                    value: 1,
-                    min: 0.01,
-                    max: 10,
+                    unrealLabel: 'DiskSize',
+                    value: 200,
+                    min: 80,
+                    max: 500,
                     display: 'down'
                 },
                 rotationSpeed: {
                     name: 'Rotation Speed',
                     label: 'rotationSpeed',
-                    value: 1,
-                    min: 0.01,
+                    unrealLabel: 'RotationSpeed',
+                    value: 4.5,
+                    min: 0,
                     max: 10,
                     display: 'down'
                 }
@@ -63,7 +67,7 @@ export default {
     methods: {
         sendOSCMessage(update) {
             osc.open();
-            const message = new OSC.Message('/OSCTest', update.label, update.value);
+            const message = new OSC.Message('/' + update.unrealLabel, update.value);
             osc.on('open', () => {
                 osc.send(message);
                 console.log('Message Sent!');
@@ -71,6 +75,7 @@ export default {
         },
         updateState(update) {
             this.engineState[update.label].value = update.value;
+            update.unrealLabel = this.engineState[update.label].unrealLabel;
             console.log(this.engineState[update.label].name + " updated: ", update.value);
             this.sendOSCMessage(update);
         }

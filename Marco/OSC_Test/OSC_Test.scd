@@ -1,6 +1,6 @@
 (
 
-NetAddr("127.0.0.1", 7500);
+NetAddr("127.0.0.1", 57120);
 
 OSCdef('OSCinit',
 	{ arg msg;
