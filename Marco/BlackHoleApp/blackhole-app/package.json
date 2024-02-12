@@ -10,6 +10,8 @@
   "dependencies": {
     "axios": "^1.6.7",
     "core-js": "^3.8.3",
+    "jquery": "^3.7.1",
+    "osc": "^2.4.4",
     "osc-js": "^2.4.0",
     "vue": "^3.2.13",
     "vue-three-round-slider": "^1.2.7"

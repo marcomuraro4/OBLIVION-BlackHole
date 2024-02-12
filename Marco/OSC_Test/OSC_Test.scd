@@ -1,10 +1,17 @@
 (
 
-NetAddr("127.0.0.1", 57120);
+NetAddr("127.0.0.1", 7500);
+
+OSCdef('OSCinit',
+	{ arg msg;
+		postln("Connection established: " + msg[1]);
+	},
+	"/OSCinit");
 
 OSCdef('OSCreceiver',
 	{ arg msg;
-		postln("New message: " + msg[0]);
+		postln("New message: " + msg[1] + msg[2]);
 	},
 	"/OSCTest");
+
 )
