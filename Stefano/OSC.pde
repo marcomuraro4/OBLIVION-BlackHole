@@ -55,7 +55,7 @@ void draw() {
   println("disk size: " + rotSpeed);
   println("disk size: " + temp);
   
-  OscMessage myMessage = new OscMessage("/OSCTest");
+  OscMessage myMessage = new OscMessage("/BlackHoleParams");
   myMessage.add(dist);
   myMessage.add(diskSize);
   myMessage.add(mass);
