@@ -19,8 +19,6 @@ BHP.RotationSpeed = RotationSpeed/1000;
 BHP.DiskDensityBias = DiskDensityBias;
 BHP.DiskDensity = DiskDensity;
 BHP.diskTemp = DiskTemp;
-BHP.beamExponent = 2.0;
-BHP.falloffRate = 3;
 BHP.TexDisk = TexDisk;
 BHP.TexDiskSampler = TexDiskSampler;
 BHP.LightColor = LightColor;
@@ -38,20 +36,6 @@ BHP.FogHeight = FogHeight;
 BHP.FogDensity = FogDensity;
 BHP.FogExponent = sqrt(FogHeight)*5; //Just a little euristhic to scale the exponent according to height
 
-RenderingProperties RP;
-RP.stepSize = 0.1;
-RP.absorptionFactor = 1;
-RP.noiseCutoff = 1.9;
-RP.noiseMultiplier = 3;
-RP.maxSteps = 50;
-
-RP.numOctaves = 8;
-RP.H = 0.3;
-RP.noiseCirculation =8;
-RP.noiseOffset = 1;
-RP.noiseScale = 1;
-RP.diskMult = 100;
-
 
 //Random values for jitter
 int3 randpos = int3(Parameters.SvPosition.xy, View.StateFrameIndexMod8);
@@ -68,7 +52,7 @@ float3 InitDir = CameraVectorLS;
 //Jitter is used to avoid aliasing effects
 //(e.g. strange discontinuities in the accretion disk)
 //Basically add some displacement to the initial position
-float JitterAmount = 1; //Make it a parameters
+float JitterAmount = 1; //Make it a parameter maybe
 
 Dir = InitDir;
 InitPos += InitDir * rand * JitterAmount * Scale.x;
@@ -77,6 +61,6 @@ InitPos += InitDir * rand * JitterAmount * Scale.x;
 
 Color = 0.0;
 Temp = 200;
-BlackHole(InitPos, Dir, Mask, BHP, Color, Tex, TexSampler, RP, Temp);
+BlackHole(InitPos, Dir, Mask, BHP, Color);
 
 return 1.0;
