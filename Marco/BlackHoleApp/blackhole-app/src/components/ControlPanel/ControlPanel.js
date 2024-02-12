@@ -13,7 +13,7 @@ export default {
             roundSlider: {
                 min: this.controlParam.min,
                 max: this.controlParam.max,
-                step: 0.01,
+                step: this.controlParam.step,
                 radius: 80,
                 width: 12,
                 startAngle: 315,

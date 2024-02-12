@@ -11,10 +11,10 @@ const osc = new OSC({ plugin: client });
 
 await osc.open();
 
-const message = new OSC.Message('/OSCinit', 'Black Hole App');
+/*const message = new OSC.Message('/OSCinit', 'Black Hole App');
 osc.on('open', () => {
     osc.send(message);
-});
+});*/
 
 export default {
     name: 'ControlInterface',
@@ -32,6 +32,7 @@ export default {
                     value: 5,
                     min: 1,
                     max: 20,
+                    step: 1,
                     display: 'up'
                 },
                 temperature: {
@@ -41,6 +42,7 @@ export default {
                     value: 1000,
                     min: 1000,
                     max: 10000,
+                    step: 10,
                     display: 'up'
                 },
                 diskSize: {
@@ -50,6 +52,7 @@ export default {
                     value: 200,
                     min: 80,
                     max: 500,
+                    step: 10,
                     display: 'down'
                 },
                 rotationSpeed: {
@@ -59,6 +62,7 @@ export default {
                     value: 4.5,
                     min: 0,
                     max: 10,
+                    step: 0.5,
                     display: 'down'
                 }
             }
