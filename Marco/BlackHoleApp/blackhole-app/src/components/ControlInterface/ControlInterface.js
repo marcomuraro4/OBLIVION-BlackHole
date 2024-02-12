@@ -28,7 +28,7 @@ export default {
                 mass: {
                     name: 'Mass',
                     label: 'mass',
-                    unrealLabel: 'mass',
+                    unrealLabel: 'Mass',
                     value: 5,
                     min: 1,
                     max: 20,
