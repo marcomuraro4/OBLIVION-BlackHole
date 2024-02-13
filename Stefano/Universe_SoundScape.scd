@@ -42,7 +42,7 @@ SynthDef.new(\scifiFM, {
 	env = EnvGen.kr(Env.linen(att, sus, rel), doneAction: 2);
 	mod = SinOsc.ar(modFreq, mul: modAmp);
 	car = SinOsc.ar(carFreq + mod) * env * amp;
-	car = Pan2.ar(car, 0, 1);
+	car = Pan2.ar(car, 0, rrand(-1, 1));
 	Out.ar(out, car);
 }).add;
 
@@ -61,7 +61,7 @@ SynthDef.new(\particleNoise, {
 	var dseq, trig, sig;
 	dseq = Dseq([SinOsc.ar(45).range(-5, 12), SinOsc.ar(SinOsc.ar(0.285).range(42, 48)).range(-9, 19), 9, 0, -12], inf);
 	trig = Impulse.ar(SinOsc.ar(0.2).range(44, 46));
-	sig = SinOsc.ar((25 + Demand.ar(trig, 0, dseq)).midicps, 0, 0.5);
+	sig = SinOsc.ar((35 + Demand.ar(trig, 0, dseq)).midicps, 0, 0.5);
 	sig = RHPF.ar(sig, 200);
 	sig = Pan2.ar(sig, 0, amp);
 	Out.ar(out, sig);
@@ -98,7 +98,7 @@ SynthDef(\windWhip, {
 	chain = FFT(LocalBuf(2048), trump);
 	chain = PV_BinShift(chain, WhiteNoise.kr.range(0.96, 1.01), whooshPitch.range(24, 28));
 	trump = IFFT(chain) * 0.2;
-	pan = Line.kr(-0.7, 0.7, 3);
+	pan = [Line.kr(-0.7, 0.7, 3), Line.kr(0.7, -0.7, 3)].choose;
 	sig = (noise + swish + trump) * whooseVol;
 	sig = Pan2.ar(sig, pan, amp);
 	Out.ar(out, sig);
@@ -120,19 +120,20 @@ SynthDef.new(\reverb, {
 ~reverbBus = Bus.audio(s, 2);
 
 ~reverbSynth = Synth.new(
-		\reverb, [
-			\in, ~reverbBus
+	\reverb, [
+		\in, ~reverbBus
 ]);
 
 ~scale = [0, 2, 5];
 ~fund = 19;
-
 ~ampLow = 1;
 ~ampMid = 0;
 ~ampHigh = 0;
 ~relAmpFM = 0.1;
 ~relAmpWT = 0.5;
+~relAmpWW = 0.05;
 ~ampPN = 0;
+~fxRelTime = 1;
 
 fork{
 	loop{
@@ -211,7 +212,7 @@ fork{
 
 fork{
 	loop{
-		var t_FX = rrand(1.0, 8.0);
+		var t_FX = rrand(2.0, 8.0);
 		var ampFM = rrand(0.05, 0.13) * ~relAmpFM;
 		t_FX.wait;
 		~synthFM = Synth.new(
@@ -229,7 +230,7 @@ fork{
 
 fork{
 	loop{
-		var t_WT = [15, 17.5, 20, 22.5, 25].choose;
+		var t_WT = ([15, 17.5, 20, 22.5, 25].choose * ~fxRelTime);
 		var ampWT = Pwhite(0.2, 1, 800) * rrand(0.04, 0.13) * ~relAmpWT;
 		t_WT.wait;
 		x = Pbind(\instrument, \bellsWT,
@@ -243,26 +244,43 @@ fork{
 	};
 };
 
-~synthFM = Synth.new(
+fork{
+	loop{
+		var t_WW = (rrand(10.0, 20.0) * ~fxRelTime);
+		var ampWW = rrand(0.4, 0.8) * ~relAmpWW;
+		t_WW.wait;
+		~synthFM = Synth.new(
+			\windWhip, [
+				\amp, ampWW,
+				\out, ~reverbBus
+		]);
+	};
+};
+
+~synthPN = Synth.new(
 	\particleNoise, [
 		\amp, ~ampPN,
 		\out, ~reverbBus
 ]);
 
-~minAmpLow = 0.75;
-~maxAmpLow = 1.5;
+~minAmpLow = 0.3;
+~maxAmpLow = 0.9;
 ~minAmpMid = 0;
-~maxAmpMid = 0.8;
+~maxAmpMid = 0.35;
 ~minAmpHigh = 0;
-~maxAmpHigh = 0.1;
-~minRelAmpFM = 0.1;
-~maxRelAmpFM = 1;
-~minRelAmpWT = 0.5;
-~maxRelAmpWT = 1;
-~minAmpPN = 0;
-~maxAmpPN = 1.5;
-~alpha = 0.5 * (sqrt(2) - 1 + sqrt(2 * sqrt(2) - 1));
-~beta = - 1 / ((1 + ~alpha).squared);
+~maxAmpHigh = 0.08;
+~minRelAmpFM = 0.2;
+~maxRelAmpFM = 0.75;
+~minRelAmpWT = 0.2;
+~maxRelAmpWT = 0.7;
+~minRelAmpWW = 0.1;
+~maxRelAmpWW = 0.7;
+~minAmpPN = 0.1;
+~maxAmpPN = 0.75;
+~minFxRelTime = 0.5;
+~maxFxRelTime = 1;
+~minDist = 1;
+~maxDist = 2.4;
 ~minDiskSize = 80;
 ~maxDiskSize = 500;
 ~minMass = 1;
@@ -277,31 +295,31 @@ NetAddr("127.0.0.1", 57120);
 OSCdef('OSCreceiver',
 	{ arg msg;
 	  var distNorm, forceNorm, diskSizeNorm, massNorm, rotSpeedNorm, tempNorm;
-	  distNorm = msg[1];
-	  forceNorm = ~beta + (1 / ((distNorm + ~alpha).squared));
-	  diskSizeNorm = (msg[2] - ~minDiskSize) / (~maxDiskSize - ~minDiskSize);
-	  massNorm = (msg[3] - ~minMass) / (~maxMass - ~minMass);
-	  rotSpeedNorm = (msg[4] - ~minRotSpeed) / (~maxRotSpeed - ~minRotSpeed);
-	  tempNorm = (msg[5] - ~minTemp) / (~maxTemp - ~minTemp);
-	  /*
-	  distNorm.postln;
-	  diskSizeNorm.postln;
-	  massNorm.postln;
-	  rotSpeedNorm.postln;
-	  tempNorm.postln;
-	  */
+	  distNorm = (msg[1] - ~minDist) / (~maxDist - ~minDist);
 	  if(distNorm < 0, {
 		   distNorm = 0;
 	  });
 	  if(distNorm > 1, {
 		   distNorm = 1;
 	  });
+	  diskSizeNorm = (msg[2] - ~minDiskSize) / (~maxDiskSize - ~minDiskSize);
+	  massNorm = (msg[3] - ~minMass) / (~maxMass - ~minMass);
+	  rotSpeedNorm = (msg[4] - ~minRotSpeed) / (~maxRotSpeed - ~minRotSpeed);
+	  tempNorm = (msg[5] - ~minTemp) / (~maxTemp - ~minTemp);
+	  distNorm.postln;
+	  diskSizeNorm.postln;
+	  massNorm.postln;
+	  rotSpeedNorm.postln;
+	  tempNorm.postln;
 	  ~ampLow = ~minAmpLow + ((~maxAmpLow - ~minAmpLow) * massNorm);
 	  ~ampMid = ~maxAmpMid - ((~maxAmpMid - ~minAmpMid) * distNorm);
-	  ~ampHigh = ~maxAmpHigh - ((~maxAmpHigh - ~minAmpHigh) * diskSizeNorm);
+	  ~ampHigh = ~minAmpHigh + ((~maxAmpHigh - ~minAmpHigh) * diskSizeNorm);
 	  ~relAmpFM = ~maxRelAmpFM - ((~maxRelAmpFM - ~minRelAmpFM) * distNorm);
 	  ~relAmpWT = ~maxRelAmpWT - ((~maxRelAmpWT - ~minRelAmpWT) * distNorm);
-	  ~ampPN = ~maxAmpPN - ((~maxAmpPN - ~minAmpPN) * tempNorm);
+	  ~relAmpWW = ~maxRelAmpWW - ((~maxRelAmpWW - ~minRelAmpWW) * distNorm);
+	  ~ampPN = ~minAmpPN + ((~maxAmpPN - ~minAmpPN) * tempNorm);
+	  ~synthPN.set(\amp, ~ampPN);
+	  ~fxRelTime = ~maxFxRelTime - ((~maxFxRelTime - ~minFxRelTime) * distNorm);
 	},
 "/BlackHoleParams");
 
