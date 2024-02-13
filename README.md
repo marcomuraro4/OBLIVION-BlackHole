@@ -34,7 +34,10 @@ These values are used to modulate the sound produced by SuperCollider.
 
 ### Web App Implementation
 
-The web application was implemented by means of [Vue.js](https://vuejs.org/) framework. In particular, the Vue project was developed using the [Vue CLI](https://cli.vuejs.org/), which is the standard tooling baseline for Vue ecosystem.
+The web interface was implemented by means of [Vue.js](https://vuejs.org/) framework. In particular, the web application was developed using the [Vue CLI](https://cli.vuejs.org/), which is the standard tooling baseline for Vue ecosystem. 
+
+The OSC communication between the Web App and Unreal Engine was implemented through a Node WebSocket Server running at localhost on port 8081. The Vue app creates a WebSocket Client instance at the same local address and send messages to the Node Server, which acts as a bridge between the two applications listening to OSC messages and broadcasting them over UDP to the receiver. The endpoint could run on the same machine or on a remote one. 
+To enable the communication between the Vue app and Unreal Engine running on separate machines, go to **index.js** in **node-server** directory and set the correct remote IP address and port (lines 27 and 28 respectively).
 
 ### Graphic Simulation Implementation
 
