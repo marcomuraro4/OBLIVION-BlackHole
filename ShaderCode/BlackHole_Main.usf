@@ -1,0 +1,66 @@
+float3 CameraPositionWS = LWCToFloat(ResolvedView.WorldCameraOrigin);
+float3 CameraVectorWS = -Parameters.CameraVector;
+
+//World To Local
+FLWCInverseMatrix WorldToLocal = GetWorldToInstance(Parameters);
+float3 Scale = LWCMultiplyVector(float3(1.0,0.0,0.0), GetInstanceToWorld(Parameters));
+float3 CameraPositionLS = LWCToFloat(LWCMultiply(ResolvedView.WorldCameraOrigin, WorldToLocal));
+float3 CameraVectorLS = LWCMultiplyVector(CameraVectorWS, GetPrimitiveData(Parameters).WorldToLocal); 
+
+
+Mask = 1.0;
+BlackHoleProperties BHP;
+BHP.Mass = Mass;
+BHP.EventHorizon = Mass*2;
+BHP.DiskStart = BHP.EventHorizon*3;
+BHP.DiskSize = DiskSize;
+BHP.DiskOuterRadius = BHP.DiskStart+BHP.DiskSize;
+BHP.RotationSpeed = RotationSpeed/1000;
+BHP.DiskDensityBias = DiskDensityBias;
+BHP.DiskDensity = DiskDensity;
+BHP.diskTemp = DiskTemp;
+BHP.TexDisk = TexDisk;
+BHP.TexDiskSampler = TexDiskSampler;
+BHP.LightColor = LightColor;
+BHP.LightIntensity = LightIntensity;
+BHP.LightBias = LightBias;
+BHP.ShadowColor = ShadowColor;
+BHP.ShadowDensity = ShadowDensity;
+BHP.ShadowStepSize = ShadowStepSize;
+BHP.BandSize = BandSize;
+BHP.ColorMap = ColorMap;
+BHP.ColorMapSampler = ColorMapSampler;
+
+//Fog params
+BHP.FogHeight = FogHeight;
+BHP.FogDensity = FogDensity;
+BHP.FogExponent = sqrt(FogHeight)*5; //Just a little euristhic to scale the exponent according to height
+
+
+//Random values for jitter
+int3 randpos = int3(Parameters.SvPosition.xy, View.StateFrameIndexMod8);
+float rand = float(Rand3DPCG16(randpos).x) / 0xffff;
+
+
+
+float3 InitPos = CameraPositionLS;
+float3 InitDir = CameraVectorLS;
+
+
+
+
+//Jitter is used to avoid aliasing effects
+//(e.g. strange discontinuities in the accretion disk)
+//Basically add some displacement to the initial position
+float JitterAmount = 1; //Make it a parameter maybe
+
+Dir = InitDir;
+InitPos += InitDir * rand * JitterAmount * Scale.x;
+
+
+
+Color = 0.0;
+Temp = 200;
+BlackHole(InitPos, Dir, Mask, BHP, Color);
+
+return 1.0;
