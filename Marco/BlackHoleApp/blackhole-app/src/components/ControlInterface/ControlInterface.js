@@ -11,6 +11,8 @@ const osc = new OSC({ plugin: client });
 
 await osc.open();
 
+var shouldIgnore = false;
+
 export default {
     name: 'ControlInterface',
     components: {
@@ -65,11 +67,19 @@ export default {
     },
     methods: {
         sendOSCMessage(update) {
+            if (shouldIgnore) {
+                return;
+            }
+            shouldIgnore = true;
+            setTimeout(() => {
+                shouldIgnore = false;
+            }, 200);
+
             osc.open();
             const message = new OSC.Message('/' + update.unrealLabel, update.value);
             osc.on('open', () => {
                 osc.send(message);
-                //console.log('Message Sent!');
+                console.log('Message Sent!');
             });
         },
         updateState(update) {
