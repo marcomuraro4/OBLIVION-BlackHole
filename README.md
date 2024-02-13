@@ -2,6 +2,7 @@
 ## Interactive Black Hole Visualization and Artistic Sonorization
 
 Oblivion is a an interactive artistic installation which simulates the visual appearance of a black hole. The simulation parameters can be controlled through a dedicated web application and the visual scene is enriched by a soundscape modulated by these parameters.
+The user can navigate inside the scene by moving a spaceship with the aid of a controller (or simply with mouse and keyboard).
 
 ## How to install
 
@@ -16,6 +17,7 @@ Here are the instructions on how to set up all the three components:
 ## How to use
 
 ...here we describe interface and commands for spaceship...
+...Put image of controller...
 
 
 ## General Architecture
@@ -29,6 +31,46 @@ These values are used to modulate the sound produced by SuperCollider.
 
 
 ### Graphic Simulation Implementation
+
+The black hole is implemented in UE5 with a custom shader written in HLSL (High Level Shader Language). The user is positioned in the inside of a sphere, whose internal surface is covered with a space sky texture.
+The shader, to color each pixel of the scene, utilizes the ray marching technique: it takes a series of small steps in the view direction corresponding to that pixel and check the scene for intersection with objects.
+The black hole singularity is assumed to be at the center of the scene (and at the center of the coordinate system) and it's rendered simply as a black sphere.
+
+#### Gravitational Lensing
+
+Supermassive objects in space cause light rays around them to follow curved paths, creating a visual effect known as gravitational lensing. Computing these paths exactly would require integrating sets of differential equations known as geodesics, which is computationally intensive. Instead, we use a simplified model which is able to replicate the visual effect very closely: we compute a gravity force (depending on the distance from the singularity) which is applied on the marching view direction, distorting it in its path.
+
+
+#### Accretion Disk
+
+To render the accretion disk, we first check if the view path crosses the accretion disk region. This is modeled as an anular region around the black hole singularity, which is surrounded by a fog layer with a certain thickness.
+When inside this region, we sample the color of the scene appropriately.
+The sampling process works as follows:
+- we compute the fog density, which increases towards the center of the disk with a certain function
+- we sample a texture to obtain the color of the fog
+- we compute the light energy reaching that point (using an inverse square law depending on the distance)
+- we sample a texture to obtain the color and density of the accretion disk
+- we use a volumetric rendering approach to determine the amount of light absorbed and the one actually reaching the point
+- finally the contribution from the disk and the fog color is summed together
+
+
+##### Disk Rotation
+
+To obtain a realistic rotation effect, the disk should rotate faster close to the event horizon and slower farther away (in particular, it decreases with the cube of the distance). The effect can be obtained by applying a rotation matrix to the UV coordinates when sampling the texture. In pratice, the speed cannot vary continuously with the distance or we will have strange artifacts. Therefore we must divide the disk in multiple discrete bands of constant speed.
+To avoid the presence of visible seams between these bands, we add additional shifted bands and then interpolate the results obtained from sampling the texture with the two different sets of bands.
+
+
+#### Color and Doppler Effect
+
+The disk 
+
+
+
+
+
+
+
+
 
 
 ### SuperCollider Implementation
