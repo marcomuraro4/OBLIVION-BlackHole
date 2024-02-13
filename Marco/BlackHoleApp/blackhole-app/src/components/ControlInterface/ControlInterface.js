@@ -79,7 +79,7 @@ export default {
             const message = new OSC.Message('/' + update.unrealLabel, update.value);
             osc.on('open', () => {
                 osc.send(message);
-                console.log('Message Sent!');
+                //console.log('Message Sent!');
             });
         },
         updateState(update) {
