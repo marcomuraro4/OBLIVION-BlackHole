@@ -306,11 +306,6 @@ OSCdef('OSCreceiver',
 	  massNorm = (msg[3] - ~minMass) / (~maxMass - ~minMass);
 	  rotSpeedNorm = (msg[4] - ~minRotSpeed) / (~maxRotSpeed - ~minRotSpeed);
 	  tempNorm = (msg[5] - ~minTemp) / (~maxTemp - ~minTemp);
-	  distNorm.postln;
-	  diskSizeNorm.postln;
-	  massNorm.postln;
-	  rotSpeedNorm.postln;
-	  tempNorm.postln;
 	  ~ampLow = ~minAmpLow + ((~maxAmpLow - ~minAmpLow) * massNorm);
 	  ~ampMid = ~maxAmpMid - ((~maxAmpMid - ~minAmpMid) * distNorm);
 	  ~ampHigh = ~minAmpHigh + ((~maxAmpHigh - ~minAmpHigh) * diskSizeNorm);
@@ -320,6 +315,13 @@ OSCdef('OSCreceiver',
 	  ~ampPN = ~minAmpPN + ((~maxAmpPN - ~minAmpPN) * tempNorm);
 	  ~synthPN.set(\amp, ~ampPN);
 	  ~fxRelTime = ~maxFxRelTime - ((~maxFxRelTime - ~minFxRelTime) * distNorm);
+	  /*
+	  distNorm.postln;
+	  diskSizeNorm.postln;
+	  massNorm.postln;
+	  rotSpeedNorm.postln;
+	  tempNorm.postln;
+	  */
 	},
 "/BlackHoleParams");
 

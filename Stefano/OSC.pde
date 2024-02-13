@@ -5,11 +5,11 @@ import controlP5.*;
 int R = 40;
 int G = 200;
 int B = 200;
-float diskSize = 80;
-float mass = 1;
-float rotSpeed = 0;
+float diskSize = 200;
+float mass = 5;
+float rotSpeed = 4.5;
 float temp = 1000;
-float dist = 1;
+float dist = 0;
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
@@ -23,8 +23,8 @@ void setup() {
   myController = new ControlP5(this);
   
   myController.addSlider("DISTANCE", 2.4, 1, 2, 40, 40, 300, 40);
-  myController.addSlider("DISK SIZE", 80, 500, 150, 40, 100, 300, 40);
-  myController.addSlider("MASS", 1, 20, 4, 40, 160, 300, 40);
+  myController.addSlider("DISK SIZE", 80, 500, 200, 40, 100, 300, 40);
+  myController.addSlider("MASS", 1, 20, 5, 40, 160, 300, 40);
   myController.addSlider("ROTATION SPEED", 0, 10, 4.5, 40, 220, 300, 40);
   myController.addSlider("TEMPERATURE", 1000, 10000, 1000, 40, 280, 300, 40);
   
