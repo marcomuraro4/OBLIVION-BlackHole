@@ -1,19 +1,16 @@
-//--------------------------------------------------
-//  Bi-Directional OSC messaging Websocket <-> UDP
-//--------------------------------------------------
-var osc = require("osc"),
+const osc = require("osc"),
     WebSocket = require("ws");
 
-var getIPAddresses = function () {
-    var os = require("os"),
-    interfaces = os.networkInterfaces(),
-    ipAddresses = [];
+const getIPAddresses = function () {
+    const os = require("os"),
+        interfaces = os.networkInterfaces();
+    var ipAddresses = [];
 
-    for (var deviceName in interfaces){
+    for (let deviceName in interfaces) {
         var addresses = interfaces[deviceName];
 
-        for (var i = 0; i < addresses.length; i++) {
-            var addressInfo = addresses[i];
+        for (let i = 0; i < addresses.length; i++) {
+            let addressInfo = addresses[i];
 
             if (addressInfo.family === "IPv4" && !addressInfo.internal) {
                 ipAddresses.push(addressInfo.address);
@@ -24,35 +21,35 @@ var getIPAddresses = function () {
     return ipAddresses;
 };
 
-var udp = new osc.UDPPort({
+const udpPort = new osc.UDPPort({
     localAddress: "0.0.0.0",
     localPort: 7400,
     remoteAddress: "127.0.0.1",
     remotePort: 57121
 });
 
-udp.on("ready", function () {
+udpPort.on("ready", () => {
     var ipAddresses = getIPAddresses();
     console.log("Listening for OSC over UDP.");
     ipAddresses.forEach(function (address) {
-        console.log(" Host:", address + ", Port:", udp.options.localPort);
+        console.log("Host:", address + ", Port:", udpPort.options.localPort);
     });
-    console.log("Broadcasting OSC over UDP to", udp.options.remoteAddress + ", Port:", udp.options.remotePort);
+    console.log("Broadcasting OSC over UDP to", udpPort.options.remoteAddress + ", Port:", udpPort.options.remotePort);
 });
 
-udp.open();
+udpPort.open();
 
-var wss = new WebSocket.Server({
+const wss = new WebSocket.Server({
     port: 8081
 });
 
-wss.on("connection", function (socket) {
+wss.on("connection", (socket) => {
     console.log("A Web Socket connection has been established!");
-    var socketPort = new osc.WebSocketPort({
+    const socketPort = new osc.WebSocketPort({
         socket: socket
     });
 
-    var relay = new osc.Relay(udp, socketPort, {
+    var relay = new osc.Relay(udpPort, socketPort, {
         raw: true
     });
 });

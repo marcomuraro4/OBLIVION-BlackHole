@@ -12,7 +12,7 @@ OSCdef('OSCreceiver',
 	{ arg msg;
 		postln("New message: " + msg[1] + msg[2]);
 	},
-	"/mass");
+	"/Mass");
 
 )
 
