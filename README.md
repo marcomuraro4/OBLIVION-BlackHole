@@ -10,7 +10,7 @@ The visual part is realized inside Unreal Engine 5, the auditory part in SuperCo
 Here are the instructions on how to set up all the three components:
 
 - Unreal Engine: the simulation can be run directly by launching the appropriate executable for your system. Otherwise, you can package the project on your system. (details here)
-- Web app: Once the repository has been cloned, the following steps should be taken:
+- Web App: Once the repository has been cloned, the following steps should be taken:
   - Open a new terminal tab, move to **blackhole-app** directory and run `npm install` to install all the dependencies needed
   - Open another terminal tab, move to **node-server** directory and run `npm install` as well
   - Now, in **node-server** directory, run `node .` to boot the node server 
