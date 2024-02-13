@@ -11,11 +11,6 @@ const osc = new OSC({ plugin: client });
 
 await osc.open();
 
-/*const message = new OSC.Message('/OSCinit', 'Black Hole App');
-osc.on('open', () => {
-    osc.send(message);
-});*/
-
 export default {
     name: 'ControlInterface',
     components: {
@@ -74,13 +69,13 @@ export default {
             const message = new OSC.Message('/' + update.unrealLabel, update.value);
             osc.on('open', () => {
                 osc.send(message);
-                console.log('Message Sent!');
+                //console.log('Message Sent!');
             });
         },
         updateState(update) {
             this.engineState[update.label].value = update.value;
             update.unrealLabel = this.engineState[update.label].unrealLabel;
-            console.log(this.engineState[update.label].name + " updated: ", update.value);
+            //console.log(this.engineState[update.label].name + " updated: ", update.value);
             this.sendOSCMessage(update);
         }
     }

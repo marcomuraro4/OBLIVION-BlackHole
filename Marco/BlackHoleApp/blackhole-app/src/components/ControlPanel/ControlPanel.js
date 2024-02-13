@@ -31,7 +31,7 @@ export default {
     },
     watch: {
         value() {
-            console.log(this.name + ' changed:', this.value);
+            //console.log(this.name + ' changed:', this.value);
             this.$emit("stateChange", {label: this.label, value: this.value})
         }
     }

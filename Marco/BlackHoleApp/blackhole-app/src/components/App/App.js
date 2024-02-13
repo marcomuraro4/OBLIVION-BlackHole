@@ -4,10 +4,5 @@ export default {
     name: 'App',
     components: {
         ControlInterface
-    },
-    data() {
-        return {
-            hello: 'hello'
-        }
     }
 }

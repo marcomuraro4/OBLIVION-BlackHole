@@ -4,10 +4,10 @@ const osc = require("osc"),
 const getIPAddresses = function () {
     const os = require("os"),
         interfaces = os.networkInterfaces();
-    var ipAddresses = [];
+    let ipAddresses = [];
 
     for (let deviceName in interfaces) {
-        var addresses = interfaces[deviceName];
+        let addresses = interfaces[deviceName];
 
         for (let i = 0; i < addresses.length; i++) {
             let addressInfo = addresses[i];
@@ -29,7 +29,7 @@ const udpPort = new osc.UDPPort({
 });
 
 udpPort.on("ready", () => {
-    var ipAddresses = getIPAddresses();
+    const ipAddresses = getIPAddresses();
     console.log("Listening for OSC over UDP.");
     ipAddresses.forEach(function (address) {
         console.log("Host:", address + ", Port:", udpPort.options.localPort);
