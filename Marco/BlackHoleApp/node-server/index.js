@@ -49,7 +49,7 @@ wss.on("connection", (socket) => {
         socket: socket
     });
 
-    var relay = new osc.Relay(udpPort, socketPort, {
+    const relay = new osc.Relay(udpPort, socketPort, {
         raw: true
     });
 });
