@@ -75,6 +75,8 @@ The web interface was implemented by means of [Vue.js](https://vuejs.org/) frame
   <img width="800" height="auto" alt="Vue App Interface" src="/Assets/Images/VueAppInterface.png">
 </p>
 
+Background Image by [Pawel Czerwinski](https://unsplash.com/it/@pawel_czerwinski)
+
 Functional sections integrated within the **Graphical User Interface** of the app were implemented as **Vue Custom Components**, which are independent and reusable blocks defining custom HTML elements that can be nested inside each other. This feature enables a modular architecture for the whole web app project. In particular, Vue implements its own component model that allows developers to encapsulate custom content and logic in each one of them.
 
 The app architecture is organized into the following components, from the highest level of the hierarchy to the lowest one:
