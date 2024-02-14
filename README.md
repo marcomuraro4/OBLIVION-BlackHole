@@ -125,7 +125,10 @@ The sounds coming from different synthesizers are mixed together and then proces
 
 #### Synthesis parameters and user interaction
 
-
-Fundamental frequencies of the main background sounds are picked up from a restricted set of possible values (to make the result pleasant from a musical standpoint) while all the other parameters (such as envelopes, vibrato, detuning, …) are randomly generated within a range of pre-established values. All the sounds are generated regularly in time with a minimum grade of randomness.
-
-TO BE CONTINUED...
+Fundamental frequencies of the main background sounds are picked up from a restricted set of values to make the result pleasant from a musical standpoint, while all the other parameters (envelopes, vibrato, detuning, …) are randomly generated within a range of pre-established values. All the sounds are continuosly generated in time with a minimum grade of randomness.
+The black hole parameters and its distance from the spaceship influence the soundscape:
+- As the mass increases, low frequencies increase in amplitude
+- As the temperature increases, the brownian "particle motion" sonification increases in amplitude
+- As the disk size increases, mid frequencies increase in amplitude
+- As the rotation speed increases, high frequencies increase in amplitude
+- FXs amplitude and rate of occurrence increase as the distance from the black hole decreases
