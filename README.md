@@ -12,7 +12,7 @@ The user can navigate inside the scene by moving a spaceship with the aid of a c
 
 ## How to install
 
-[Windows UE5 executable](https://drive.google.com/file/d/1Z8Ytm-VBDR1TcNSAJueQVP0fjGEL2X5B/view?usp=sharing)
+[Windows UE5 executable](https://drive.google.com/drive/folders/1WUV1DZ0BYPDrAL4M_d5qQwCaPPavJHgU?usp=sharing)
 
 The visual part is realized inside Unreal Engine 5, the auditory part in SuperCollider and the web interface is a vue application running on Node.js.
 Here are the instructions on how to set up all the three components:
@@ -91,7 +91,7 @@ The following diagram illustrates the architecture of the application in terms o
 As explained before, it can be easily noticed that all ControlPanel instances are nested inside ControlInterface component which is responsible for global state update, which is also passed as a property to all child components for their initialization. Each component instance at this level has its own internal state and the related parameter value keeps being updated thanks to v-model directive. Moreover, a Vue Watcher is always listening to changes in the value. Therefore, whenever the user interacts with the GUI by rotating one of the available sliders, ControlPanel component emits **stateChange** custom event which is dispatched to the parent and transport the necessary data. \
 In the parent, the corresponding event handler is attached to the HTML element representing the child. This handler triggers **updateState** function any time the stateChange event has been received. This function is defined within the methods option object of ControlInterface and is responsible for updating the global state of parameters. Also, it executes a function call to **sendOSCMessage** method which opens OSC connection, wrap data related to the single parameter into an OSC Packet and send it over to the dedicated Node Server.
 
-The OSC communication between the Web App and Unreal Engine was implemented through a Node WebSocket Server running at localhost on port 8081, acting as a bridge between the two applications. The Vue app creates a WebSocket Client instance sending messages to the Node Server listening to OSC messages and broadcasting them over UDP to the receiver. The endpoint could run on the same machine or on a remote one. 
+The OSC communication between the Web App and Unreal Engine was implemented through a Node WebSocket Server running at localhost on port 8081, acting as a bridge between the two applications. The Vue app creates an OSC WebSocket Client instance sending messages to the Node Server listening to OSC messages and broadcasting them over UDP to the receiver. The endpoint could run on the same machine or on a remote one. 
 To enable the communication between the Vue app and Unreal Engine running on separate machines, go to **index.js** in **node-server** directory and set the correct remote IP address and port (lines 27 and 28 respectively). Then, set the same IP address and port for the corresponding OSC Server instance in Unreal Engine project, within BP_BlackHole Blueprint.
 
 Node Server and bridging were implemented through [osc.js](https://github.com/colinbdclark/osc.js) library (by Colin Clark), whereas the OSC Client was created and set up using [osc-js](https://github.com/adzialocha/osc-js) library.
