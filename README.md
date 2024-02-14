@@ -32,6 +32,11 @@ Here are the instructions on how to set up all the three components:
   - Eventually, in **blackhole-app** directory, run `npm run serve` to serve the Vue App in the browser
 - **SuperCollider**: once the file `SoundCode/Universe_SoundScape.scd` is opened, the auditory scene can be simply started by executing the entire code (ctrl+enter).
 
+When launching the executable file on your machine, to exit from the window press:
+
+- `Alt+f4` on Windows
+- `Cmd+W` on MacOS
+
 ## How to use
 
 
