@@ -1,4 +1,4 @@
-# Oblivion
+# OBLIVION
 ## Interactive Black Hole Visualization and Artistic Sonorization
 
 Oblivion is a an interactive artistic installation which simulates the visual appearance of a black hole. The simulation parameters can be controlled through a dedicated web application and the visual scene is enriched by a soundscape modulated by these parameters.
