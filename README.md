@@ -35,7 +35,7 @@ To maneuver the spaceship around the scene we can either use mouse and keyboard 
 For mouse and keyboard, the controls are:
 - **Left shift key (hold)**: engage supersonic speed
 - **W key**: move forward (thrust)
-- **S key**: move backward or slow down
+- **S key**: slow down
 - **A/D keys**: turn left/right
 - **Mouse y axis**: move up or down
 - **Mouse x axis**: roll left or right
@@ -43,6 +43,9 @@ For mouse and keyboard, the controls are:
 For the controller the commands are shown in the following scheme:
 
 
+<p align="center">
+  <img width="800" height="auto" alt="Oblivion thumbnail" src="/Assets/Images/oblivion_controller_scheme.png">
+</p>
 
 
 
