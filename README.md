@@ -43,13 +43,17 @@ The web interface was implemented by means of [Vue.js](https://vuejs.org/) frame
   <img width="800" height="auto" alt="Vue App Interface" src="/Assets/Images/VueAppInterface.png">
 </p>
 
-Functional sections integrated within the **Graphical User Interface** of the app were implemented as **Vue Components**, which are custom and reusable blocks enabling a modular architecture for the whole project. In particular, Vue implements its own component model that allows developers to encapsulate custom content and logic in each one of them.
+Functional sections integrated within the **Graphical User Interface** of the app were implemented as **Vue Custom Components**, which are independent and reusable blocks defining custom HTML elements that can be nested inside each other. This feature enables a modular architecture for the whole web app project. In particular, Vue implements its own component model that allows developers to encapsulate custom content and logic in each one of them.
+
+The app architecture is organized into the following components, from the highest level of the hierarchy to the lowest one:
+
+- **App componenent** encapsulates the whole Vue application that on its turn is embedded within index.html representing on its turn the whole web page available on the browser.
+- **ControlInterface** is the heart of the engine being responsible for global state update of paramters to be sent to Unreal Engine thourgh OSC Communication Protocol via UDP and a dedicated Node Server.
+- **ControlPanel** implements the wrapper for the single parameter control. In particular, four different componenets of this type are nested inside ControlInterface block as child components, one for each physical parameter related to black hole graphical simulation. 
 
 <p align="center">
   <img width="800" height="auto" alt="Vue App Architecture" src="/Assets/BlockDiagrams/VueAppArchitecture.png">
 </p>
-
-...explanation goes on...
 
 The OSC communication between the Web App and Unreal Engine was implemented through a Node WebSocket Server running at localhost on port 8081, acting as a bridge between the two applications. The Vue app creates a WebSocket Client instance sending messages to the Node Server listening to OSC messages and broadcasting them over UDP to the receiver. The endpoint could run on the same machine or on a remote one. 
 To enable the communication between the Vue app and Unreal Engine running on separate machines, go to **index.js** in **node-server** directory and set the correct remote IP address and port (lines 27 and 28 respectively).
