@@ -40,6 +40,8 @@ The communication between the three components is realized through the OSC proto
 The UE5 also acts as an OSC client, by sending OSC messages each frame to SuperCollider. These messages contain the full status of the simulation, that includes both the parameter values and the spaceship distance from the black hole.
 These values are used to modulate the sound produced by SuperCollider.
 
+In the following, two possible scenarios are shown.
+
 <p align="center">
   <img width="800" height="auto" alt="Local Network" src="/Assets/BlockDiagrams/Architecture-SingleMachine.png">
 </p>
