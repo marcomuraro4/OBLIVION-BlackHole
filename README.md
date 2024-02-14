@@ -89,7 +89,7 @@ The black hole singularity is assumed to be at the center of the scene (and at t
 
 #### Gravitational Lensing
 
-Supermassive objects in space cause light rays around them to follow curved paths, creating a visual effect known as gravitational lensing. Computing these paths exactly would require integrating sets of differential equations known as geodesics, which is computationally intensive. Instead, we use a simplified model which is able to replicate the visual effect very closely: we compute a gravity force (depending on the distance from the singularity) which is applied on the marching view direction, distorting it in its path.
+Supermassive objects in space cause light rays around them to follow curved paths (called geodesics), creating a visual effect known as gravitational lensing. Computing these paths exactly would require integrating sets of differential equations known as metrics, which is computationally intensive. Instead, we use a simplified model which is able to replicate the visual effect very closely: we compute a gravity force (depending on the distance from the singularity) which is applied on the marching view direction, distorting it in its path.
 
 
 #### Accretion Disk
@@ -114,6 +114,10 @@ To avoid the presence of visible seams between these bands, we add additional sh
 #### Color and Doppler Effect
 
 The disk is colored according to the temperature and the frequency shift (doppler effect) caused by the motion of the disk with respect to the observer. In practice, we use a UV texture which represents a black body radiation and returns a color depending on the U coordinate (frequency shift) and the V coordinate (temperature). The temperature decreases with the distance from the event horizon, while the frequency of light is increased (blueshift) if the disk is moving towards us and decreased (redshift) if moving away.
+
+<p align="center">
+  <img width="800" height="auto" alt="Blueshift" src="/Assets/Images/blueshift_demo.png">
+</p>
 
 
 ### SuperCollider Implementation
