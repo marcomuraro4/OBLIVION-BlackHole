@@ -46,7 +46,7 @@ The web interface was implemented by means of [Vue.js](https://vuejs.org/) frame
 
 ...explanation goes on...
 
-The OSC communication between the Web App and Unreal Engine was implemented through a Node WebSocket Server running at localhost on port 8081. The Vue app creates a WebSocket Client instance sending messages to the Node Server, which is listening to OSC messages and broadcasting them over UDP to the receiver, therefore acting as a bridge between the two applications. The endpoint could run on the same machine or on a remote one. 
+The OSC communication between the Web App and Unreal Engine was implemented through a Node WebSocket Server running at localhost on port 8081, acting as a bridge between the two applications. The Vue app creates a WebSocket Client instance sending messages to the Node Server listening to OSC messages and broadcasting them over UDP to the receiver. The endpoint could run on the same machine or on a remote one. 
 To enable the communication between the Vue app and Unreal Engine running on separate machines, go to **index.js** in **node-server** directory and set the correct remote IP address and port (lines 27 and 28 respectively).
 
 Node Server and bridging were implemented through [osc.js](https://github.com/colinbdclark/osc.js) library by Colin Clark, whereas the OSC Client was created and set up using [osc-js](https://github.com/adzialocha/osc-js) library.
