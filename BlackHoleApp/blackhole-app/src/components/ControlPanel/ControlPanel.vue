@@ -1,11 +1,11 @@
 <template>
   <div class="component-wrapper flex-container-column">
-    <div v-if="display == 'up'" class="title-container">
+    <div v-if="(display == 'up')" class="title-container">
       <h2>{{ name }}</h2>
     </div>
     <div
-        class="knob-wrapper flex-container-column"
-        :class="{'knob-wrapper-down': (display == 'down')}">
+        class="flex-container-column"
+        :class="(display == 'up') ? 'knob-wrapper' : 'knob-wrapper-down'">
       <RoundSlider
           v-model="value"
           :min="roundSlider.min"

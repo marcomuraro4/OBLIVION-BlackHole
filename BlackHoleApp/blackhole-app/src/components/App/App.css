@@ -34,6 +34,7 @@ h1 {
     font-size: 45px;
     color: white;
     margin: 8px;
+    padding-top: 5px;
 }
 
 h2 {
@@ -60,6 +61,7 @@ label {
 
 .knob-wrapper {
     position: relative;
+    padding-top: 15px;
 }
 
 .flex-container-row {
