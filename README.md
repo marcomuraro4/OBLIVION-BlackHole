@@ -15,7 +15,7 @@ Here are the instructions on how to set up all the three components:
   - Open another terminal tab, move to **node-server** directory and run `npm install` as well
   - Now, in **node-server** directory, run `node .` to boot the node server 
   - Eventually, in **blackhole-app** directory, run `npm run serve` to serve the Vue App in the browser
-- SuperCollider: ...
+- SuperCollider: once the SuperCollider file "Universe_SoundScape.scd" is opened, the auditory scene can be simply started by executing the entire code (ctrl+enter).
 
 ## How to use
 
@@ -86,7 +86,20 @@ The disk
 
 
 
-
-
 ### SuperCollider Implementation
 
+The entire auditory scene is implemented using SuperCollider. The OSC communication protocol makes it communicating with Unreal Engine 5.
+The soundscape concept is based on early sci-fi movies music. The main goal is to emulate sci-fi music in a generative/random fashion while maintaining a certain grade of control on the algorithm. Both harmonic and inharmonic sounds are employed to reach an unreal yet “pleasant” and characteristic sound setting. The aim of this algorithm is to enlighten the vastity of the universe and the immense power of a black hole.
+
+#### Synthesis techniques and FX
+Different kind of synthesis has been employed:
+-	Subtractive: to set the main background consisting of filtered sawtooth-like waveforms and impulsive sounds
+-	FM: to realize short and modulated sinusoids as well as the noisy "particle motion" effect
+-	Wavetable: to spread short grapples of ringing sounds derived from the actual sample of a triangle
+-	Digital waveguide: to generate a "gust of wind" effect
+
+The sounds coming from different synthesizers are mixed together and then processed by a common reverb effect, which also provides companding and limiting functionalities.
+
+#### Synthesis parameters and user interaction
+
+Fundamental frequencies of the main background sounds are picked up from a restricted set of possible values (to make the result pleasant from a musical standpoint) while all the other parameters (such as envelopes, vibrato, detuning, …) are randomly generated within a range of pre-established values. All the sounds are generated regularly in time with a minimum grade of randomness.
