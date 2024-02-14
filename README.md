@@ -52,6 +52,8 @@ The app architecture is organized into the following components, from the highes
 - **ControlPanel** implements the wrapper for the single parameter control. In particular, four different components instances of this type are nested inside ControlInterface block as child components, one for each physical parameter related to black hole graphical simulation.
 - **RoundSilder** models the graphical knob component with its own interactive contents and internal logic. In particular, circular sliders were intergrated inside the app by means of [vue-three-round-slider](https://github.com/Artem9989/vue-three-round-slider), a prebuilt external library implementing a Vue custom component (imported here as RoundSilder exactly).
 
+The following diagram illustrates the architecture of the application in terms of how Vue components are nested inside each other. As explained before, it can be easily noticed that all ControlPanel instances are nested inside ControlInterface component which is responsible for global state update. Each component instance at this level has its own internal state and the related parameter value keeps being updated whenever the user interacts with the GUI by rotating the corresponding slider.
+
 <p align="center">
   <img width="800" height="auto" alt="Vue App Architecture" src="/Assets/BlockDiagrams/VueAppArchitecture.png">
 </p>
