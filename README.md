@@ -12,7 +12,9 @@ The user can navigate inside the scene by moving a spaceship with the aid of a c
 
 ## How to install
 
-[Windows UE5 executable](https://drive.google.com/drive/folders/1WUV1DZ0BYPDrAL4M_d5qQwCaPPavJHgU?usp=sharing)
+[Windows UE5 Executable](https://drive.google.com/drive/folders/1WUV1DZ0BYPDrAL4M_d5qQwCaPPavJHgU?usp=sharing)
+
+[MacOS UE5 Executable](https://drive.google.com/file/d/1DbLfugbgiproNg0VEAFT1rOAITRQB7De/view?usp=sharing)
 
 The visual part is realized inside Unreal Engine 5, the auditory part in SuperCollider and the web interface is a vue application running on Node.js.
 Here are the instructions on how to set up all the three components:
