@@ -49,7 +49,8 @@ The app architecture is organized into the following components, from the highes
 
 - **App componenent** encapsulates the whole Vue application that on its turn is embedded within index.html representing on its turn the whole web page available on the browser.
 - **ControlInterface** is the heart of the engine being responsible for global state update of paramters to be sent to Unreal Engine thourgh OSC Communication Protocol via UDP and a dedicated Node Server.
-- **ControlPanel** implements the wrapper for the single parameter control. In particular, four different componenets of this type are nested inside ControlInterface block as child components, one for each physical parameter related to black hole graphical simulation. 
+- **ControlPanel** implements the wrapper for the single parameter control. In particular, four different components instances of this type are nested inside ControlInterface block as child components, one for each physical parameter related to black hole graphical simulation.
+- **RoundSilder** models the graphical knob component with its own interactive contents and internal logic. In particular, circular sliders were intergrated inside the app by means of [vue-three-round-slider](https://github.com/Artem9989/vue-three-round-slider), a prebuilt external library implementing a Vue custom component (imported here as RoundSilder exactly).
 
 <p align="center">
   <img width="800" height="auto" alt="Vue App Architecture" src="/Assets/BlockDiagrams/VueAppArchitecture.png">
