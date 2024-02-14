@@ -18,7 +18,7 @@ The user can navigate inside the scene by moving a spaceship with the aid of a c
 
 [MacOS UE5 Executable](https://drive.google.com/file/d/1DbLfugbgiproNg0VEAFT1rOAITRQB7De/view?usp=sharing)
 
-The visual part is realized inside Unreal Engine 5, the auditory part in SuperCollider and the web interface is a Vue application running on Node.js.
+The visual part is realized inside Unreal Engine 5, the auditory part in SuperCollider and the web interface is a Vue application running in the browser.
 Here are the instructions on how to set up all the three components:
 
 - Unreal Engine: the simulation can be run directly by launching the appropriate executable for your system. Otherwise, you can package the project yourself as follows, if you have UE5 installed:
