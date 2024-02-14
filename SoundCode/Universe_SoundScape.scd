@@ -307,8 +307,8 @@ OSCdef('OSCreceiver',
 	  rotSpeedNorm = (msg[4] - ~minRotSpeed) / (~maxRotSpeed - ~minRotSpeed);
 	  tempNorm = (msg[5] - ~minTemp) / (~maxTemp - ~minTemp);
 	  ~ampLow = ~minAmpLow + ((~maxAmpLow - ~minAmpLow) * massNorm);
-	  ~ampMid = ~maxAmpMid - ((~maxAmpMid - ~minAmpMid) * distNorm);
-	  ~ampHigh = ~minAmpHigh + ((~maxAmpHigh - ~minAmpHigh) * diskSizeNorm);
+	  ~ampMid = ~maxAmpMid - ((~maxAmpMid - ~minAmpMid) * diskSizeNorm);
+	  ~ampHigh = ~minAmpHigh + ((~maxAmpHigh - ~minAmpHigh) * rotSpeedNorm);
 	  ~relAmpFM = ~maxRelAmpFM - ((~maxRelAmpFM - ~minRelAmpFM) * distNorm);
 	  ~relAmpWT = ~maxRelAmpWT - ((~maxRelAmpWT - ~minRelAmpWT) * distNorm);
 	  ~relAmpWW = ~maxRelAmpWW - ((~maxRelAmpWW - ~minRelAmpWW) * distNorm);
