@@ -43,7 +43,7 @@ The web interface was implemented by means of [Vue.js](https://vuejs.org/) frame
   <img width="800" height="auto" alt="Vue App Interface" src="/Assets/Images/VueAppInterface.png">
 </p>
 
-...explanation goes on...
+Functional sections integrated within the **Graphical User Interface** of the app were implemented as **Vue Components**, which are custom and reusable blocks enabling a modular architecture for the whole project. In particular, Vue implements its own component model that allows developers to encapsulate custom content and logic in each one of them.
 
 <p align="center">
   <img width="800" height="auto" alt="Vue App Architecture" src="/Assets/BlockDiagrams/VueAppArchitecture.png">
