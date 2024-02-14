@@ -46,7 +46,7 @@ For the controller the commands are shown in the following scheme:
 
 
 <p align="center">
-  <img width="800" height="auto" alt="Controller scheme" src="/Assets/Images/oblivion_controller_scheme.png">
+  <img width="700" height="auto" alt="Controller scheme" src="/Assets/Images/oblivion_controller_scheme.png">
 </p>
 
 
