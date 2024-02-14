@@ -21,7 +21,7 @@ Here are the instructions on how to set up all the three components:
     - Put the black hole shader file `ShaderCode/Blackhole.usf` inside the UE5 program folder at `/Engine/Shaders/Private/BlackHole`
     - Open the project inside the `UnrealProject` folder
     - Inside the UE5 editor, click on the **Platforms** button, go to the item corresponding to your system, select the **Shipping** option and click on **Package project**
-- Web App: once the BlackHoleApp directory has been opened within an appropriate code editor such as [Visual Studio Code](https://code.visualstudio.com/) or [WebStorm](https://www.jetbrains.com/webstorm/), the following steps should be taken:
+- Web App: once the repository has been cloned, the following steps should be taken:
   - Open a new terminal tab, move to **blackhole-app** directory and run `npm install` to install all the dependencies needed (keep this tab open)
   - Open another terminal tab, move to **node-server** directory and run `npm install` (keep it open as well)
   - Now, in **node-server** directory, run `node .` to boot the node server 
