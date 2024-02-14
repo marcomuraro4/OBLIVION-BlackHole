@@ -41,11 +41,11 @@ The UE5 also acts as an OSC client, by sending OSC messages each frame to SuperC
 These values are used to modulate the sound produced by SuperCollider.
 
 <p align="center">
-  <img width="800" height="auto" alt="Local Network" src="/Assets/BlockDiagrams/Architecture-BlockDiagram-LocalNetwork.jpg">
+  <img width="800" height="auto" alt="Local Network" src="/Assets/BlockDiagrams/Architecture-BlockDiagram-LocalNetwork.png">
 </p>
 
 <p align="center">
-  <img width="800" height="auto" alt="Separate Machines" src="/Assets/BlockDiagrams/Architecture-BlockDiagram-LocalRemote.jpg">
+  <img width="800" height="auto" alt="Separate Machines" src="/Assets/BlockDiagrams/Architecture-BlockDiagram-LocalRemote.png">
 </p>
 
 ### Web App Implementation
