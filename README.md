@@ -30,8 +30,16 @@ Here are the instructions on how to set up all the three components:
 
 ## How to use
 
-...here we describe interface and commands for spaceship...
-...Put image of controller...
+To maneuver the spaceship around the scene we can either use mouse and keyboard or any controller compatible with your system (the application was tested on Windows using an XBOX 360 controller).
+For mouse and keyboard, the controls are:
+- Left shift (hold): engage supersonic speed
+- W key: move forward (thrust)
+- S key: move backward or slow down
+- A/D keys: turn left/right
+- Mouse y axis: move up or down
+- Mouse x axis: roll left or right
+For the controller the commands are shown in the following scheme:
+
 
 
 ## General Architecture
