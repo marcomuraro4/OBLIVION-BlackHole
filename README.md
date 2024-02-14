@@ -4,6 +4,12 @@
 Oblivion is a an interactive artistic installation which simulates the visual appearance of a black hole. The simulation parameters can be controlled through a dedicated web application and the visual scene is enriched by a soundscape modulated by these parameters.
 The user can navigate inside the scene by moving a spaceship with the aid of a controller (or simply with mouse and keyboard).
 
+<p align="center">
+  <img width="800" height="auto" alt="Oblivion thumbnail" src="/Assets/Images/main_oblivion.png">
+</p>
+
+[Video demo](https://www.youtube.com/watch?v=BiPovgignbY)
+
 ## How to install
 
 [Windows UE5 executable](https://drive.google.com/file/d/1Z8Ytm-VBDR1TcNSAJueQVP0fjGEL2X5B/view?usp=sharing)
