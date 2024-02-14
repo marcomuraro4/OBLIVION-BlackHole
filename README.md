@@ -166,4 +166,4 @@ The black hole parameters and its distance from the spaceship influence the soun
 - As the rotation speed increases, high frequencies increase in amplitude
 - FXs amplitude and rate of occurrence increase as the distance from the black hole decreases
 
-## Ready to jump into Space? Let's get on your spaceship and fly over the Universe!
+### Ready to jump into Space? Let's get on your spaceship and fly over the Universe!
