@@ -231,7 +231,7 @@ fork{
 fork{
 	loop{
 		var t_WT = ([15, 17.5, 20, 22.5, 25].choose * ~fxRelTime);
-		var ampWT = Pwhite(0.2, 0.7, 800) * rrand(0.04, 0.13) * ~relAmpWT;
+		var ampWT = Pwhite(0.2, 1, 800) * rrand(0.04, 0.13) * ~relAmpWT;
 		t_WT.wait;
 		x = Pbind(\instrument, \bellsWT,
 			\trig, 1,
@@ -247,7 +247,7 @@ fork{
 fork{
 	loop{
 		var t_WW = (rrand(10.0, 20.0) * ~fxRelTime);
-		var ampWW = rrand(0.2, 0.6) * ~relAmpWW;
+		var ampWW = rrand(0.4, 0.8) * ~relAmpWW;
 		t_WW.wait;
 		~synthFM = Synth.new(
 			\windWhip, [
@@ -275,8 +275,8 @@ fork{
 ~maxRelAmpWT = 0.7;
 ~minRelAmpWW = 0.1;
 ~maxRelAmpWW = 0.7;
-~minAmpPN = 0.05;
-~maxAmpPN = 0.7;
+~minAmpPN = 0.1;
+~maxAmpPN = 0.75;
 ~minFxRelTime = 0.5;
 ~maxFxRelTime = 1;
 ~minDist = 1;
