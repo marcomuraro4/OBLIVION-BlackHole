@@ -21,16 +21,16 @@ The user can navigate inside the scene by moving a spaceship with the aid of a c
 The visual part is realized inside Unreal Engine 5, the auditory part in SuperCollider and the web interface is a Vue application running in the browser.
 Here are the instructions on how to set up all the three components:
 
-- Unreal Engine: the simulation can be run directly by launching the appropriate executable for your system. Otherwise, you can package the project yourself as follows, if you have UE5 installed:
+- **Unreal Engine**: the simulation can be run directly by launching the appropriate executable for your system. Otherwise, you can package the project yourself as follows, if you have UE5 installed:
     - Put the black hole shader file `ShaderCode/Blackhole.usf` inside the UE5 program folder at `/Engine/Shaders/Private/BlackHole`
     - Open the project inside the `UnrealProject` folder
     - Inside the UE5 editor, click on the **Platforms** button, go to the item corresponding to your system, select the **Shipping** option and click on **Package project**
-- Web App: once the repository has been cloned, the following steps should be taken:
+- **Web App**: once the repository has been cloned, the following steps should be taken:
   - Open a new terminal tab, move to **blackhole-app** directory and run `npm install` to install all the dependencies needed (keep this tab open)
   - Open another terminal tab, move to **node-server** directory and run `npm install` (keep it open as well)
   - Now, in **node-server** directory, run `node .` to boot the node server 
   - Eventually, in **blackhole-app** directory, run `npm run serve` to serve the Vue App in the browser
-- SuperCollider: once the file `SoundCode/Universe_SoundScape.scd` is opened, the auditory scene can be simply started by executing the entire code (ctrl+enter).
+- **SuperCollider**: once the file `SoundCode/Universe_SoundScape.scd` is opened, the auditory scene can be simply started by executing the entire code (ctrl+enter).
 
 ## How to use
 
