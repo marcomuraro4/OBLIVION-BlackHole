@@ -73,6 +73,7 @@ The web interface was implemented by means of [Vue.js](https://vuejs.org/) frame
 
 <p align="center">
   <img width="800" height="auto" alt="Vue App Interface" src="/Assets/Images/VueAppInterface.png">
+  <a href="https://unsplash.com/it/@pawel_czerwinski">Pawel Czerwinski</a>
 </p>
 
 Background Image by [Pawel Czerwinski](https://unsplash.com/it/@pawel_czerwinski)
