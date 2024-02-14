@@ -6,10 +6,15 @@ The user can navigate inside the scene by moving a spaceship with the aid of a c
 
 ## How to install
 
+[Windows UE5 executable](https://drive.google.com/file/d/1Z8Ytm-VBDR1TcNSAJueQVP0fjGEL2X5B/view?usp=sharing)
+
 The visual part is realized inside Unreal Engine 5, the auditory part in SuperCollider and the web interface is a vue application running on Node.js.
 Here are the instructions on how to set up all the three components:
 
-- Unreal Engine: the simulation can be run directly by launching the appropriate executable for your system. Otherwise, you can package the project on your system. (details here)
+- Unreal Engine: the simulation can be run directly by launching the appropriate executable for your system. Otherwise, you can package the project yourself as follows, if you have UE5 installed:
+    - Put the black hole shader file `ShaderCode/Blackhole.usf` inside the UE5 program folder at `/Engine/Shaders/Private/BlackHole`
+    - Open the project inside the `UnrealProject` folder
+    - Inside the UE5 editor, click on the **Platforms** button, go to the item corresponding to your system, select the **Shipping** option and click on **Package project**
 - Web App: once the BlackHoleApp directory has been opened within an appropriate code editor such as [Visual Studio Code](https://code.visualstudio.com/) or [WebStorm](https://www.jetbrains.com/webstorm/), the following steps should be taken:
   - Open a new terminal tab, move to **blackhole-app** directory and run `npm install` to install all the dependencies needed (keep this tab open)
   - Open another terminal tab, move to **node-server** directory and run `npm install` (keep it open as well)
@@ -83,15 +88,7 @@ To avoid the presence of visible seams between these bands, we add additional sh
 
 #### Color and Doppler Effect
 
-The disk 
-
-
-
-
-
-
-
-
+The disk is colored according to the temperature and the frequency shift (doppler effect) caused by the motion of the disk with respect to the observer. In practice, we use a UV texture which represents a black body radiation and returns a color depending on the U coordinate (frequency shift) and the V coordinate (temperature). The temperature decreases with the distance from the event horizon, while the frequency of light is increased (blueshift) if the disk is moving towards us and decreased (redshift) if moving away.
 
 
 ### SuperCollider Implementation
