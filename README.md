@@ -10,9 +10,9 @@ The visual part is realized inside Unreal Engine 5, the auditory part in SuperCo
 Here are the instructions on how to set up all the three components:
 
 - Unreal Engine: the simulation can be run directly by launching the appropriate executable for your system. Otherwise, you can package the project on your system. (details here)
-- Web App: Once the repository has been cloned, the following steps should be taken:
-  - Open a new terminal tab, move to **blackhole-app** directory and run `npm install` to install all the dependencies needed
-  - Open another terminal tab, move to **node-server** directory and run `npm install` as well
+- Web App: once the BlackHoleApp directory has been opened within an appropriate code editor such as [Visual Studio Code](https://code.visualstudio.com/) or [WebStorm](https://www.jetbrains.com/webstorm/), the following steps should be taken:
+  - Open a new terminal tab, move to **blackhole-app** directory and run `npm install` to install all the dependencies needed (keep this tab open)
+  - Open another terminal tab, move to **node-server** directory and run `npm install` (keep it open as well)
   - Now, in **node-server** directory, run `node .` to boot the node server 
   - Eventually, in **blackhole-app** directory, run `npm run serve` to serve the Vue App in the browser
 - SuperCollider: once the SuperCollider file "Universe_SoundScape.scd" is opened, the auditory scene can be simply started by executing the entire code (ctrl+enter).
