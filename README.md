@@ -40,6 +40,8 @@ The communication between the three components is realized through the OSC proto
 The UE5 also acts as an OSC client, by sending OSC messages each frame to SuperCollider. These messages contain the full status of the simulation, that includes both the parameter values and the spaceship distance from the black hole.
 These values are used to modulate the sound produced by SuperCollider.
 
+In the following, two possible scenarios are shown.
+
 <p align="center">
   <img width="800" height="auto" alt="Local Network" src="/Assets/BlockDiagrams/Architecture-SingleMachine.png">
 </p>
@@ -73,11 +75,11 @@ The following diagram illustrates the architecture of the application in terms o
   <img width="800" height="auto" alt="Vue App Architecture" src="/Assets/BlockDiagrams/VueAppArchitecture.png">
 </p>
 
-As explained before, it can be easily noticed that all ControlPanel instances are nested inside ControlInterface component which is responsible for global state update, which is also passed as a property to all child components for their initialization. Each component instance at this level has its own internal state and the related parameter value keeps being updated thanks to a Vue Watcher listening to changes. Therefore, whenever the user interacts with the GUI by rotating one of the available sliders, ControlPanel component emits **stateChange** custom event which is dispatched to the parent and transport the necessary data. \
+As explained before, it can be easily noticed that all ControlPanel instances are nested inside ControlInterface component which is responsible for global state update, which is also passed as a property to all child components for their initialization. Each component instance at this level has its own internal state and the related parameter value keeps being updated thanks to v-model directive. Moreover, a Vue Watcher is always listening to changes in the value. Therefore, whenever the user interacts with the GUI by rotating one of the available sliders, ControlPanel component emits **stateChange** custom event which is dispatched to the parent and transport the necessary data. \
 In the parent, the corresponding event handler is attached to the HTML element representing the child. This handler triggers **updateState** function any time the stateChange event has been received. This function is defined within the methods option object of ControlInterface and is responsible for updating the global state of parameters. Also, it executes a function call to **sendOSCMessage** method which opens OSC connection, wrap data related to the single parameter into an OSC Packet and send it over to the dedicated Node Server.
 
 The OSC communication between the Web App and Unreal Engine was implemented through a Node WebSocket Server running at localhost on port 8081, acting as a bridge between the two applications. The Vue app creates a WebSocket Client instance sending messages to the Node Server listening to OSC messages and broadcasting them over UDP to the receiver. The endpoint could run on the same machine or on a remote one. 
-To enable the communication between the Vue app and Unreal Engine running on separate machines, go to **index.js** in **node-server** directory and set the correct remote IP address and port (lines 27 and 28 respectively).
+To enable the communication between the Vue app and Unreal Engine running on separate machines, go to **index.js** in **node-server** directory and set the correct remote IP address and port (lines 27 and 28 respectively). Then, set the same IP address and port for the corresponding OSC Server instance in Unreal Engine project, within BP_BlackHole Blueprint.
 
 Node Server and bridging were implemented through [osc.js](https://github.com/colinbdclark/osc.js) library (by Colin Clark), whereas the OSC Client was created and set up using [osc-js](https://github.com/adzialocha/osc-js) library.
 
@@ -89,7 +91,7 @@ The black hole singularity is assumed to be at the center of the scene (and at t
 
 #### Gravitational Lensing
 
-Supermassive objects in space cause light rays around them to follow curved paths, creating a visual effect known as gravitational lensing. Computing these paths exactly would require integrating sets of differential equations known as geodesics, which is computationally intensive. Instead, we use a simplified model which is able to replicate the visual effect very closely: we compute a gravity force (depending on the distance from the singularity) which is applied on the marching view direction, distorting it in its path.
+Supermassive objects in space cause light rays around them to follow curved paths (called geodesics), creating a visual effect known as gravitational lensing. Computing these paths exactly would require integrating sets of differential equations known as metrics, which is computationally intensive. Instead, we use a simplified model which is able to replicate the visual effect very closely: we compute a gravity force (depending on the distance from the singularity) which is applied on the marching view direction, distorting it in its path.
 
 
 #### Accretion Disk
@@ -114,6 +116,10 @@ To avoid the presence of visible seams between these bands, we add additional sh
 #### Color and Doppler Effect
 
 The disk is colored according to the temperature and the frequency shift (doppler effect) caused by the motion of the disk with respect to the observer. In practice, we use a UV texture which represents a black body radiation and returns a color depending on the U coordinate (frequency shift) and the V coordinate (temperature). The temperature decreases with the distance from the event horizon, while the frequency of light is increased (blueshift) if the disk is moving towards us and decreased (redshift) if moving away.
+
+<p align="center">
+  <img width="800" height="auto" alt="Blueshift" src="/Assets/Images/blueshift_demo.png">
+</p>
 
 
 ### SuperCollider Implementation
