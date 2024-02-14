@@ -35,7 +35,7 @@ These values are used to modulate the sound produced by SuperCollider.
 The web interface was implemented by means of [Vue.js](https://vuejs.org/) framework. In particular, the web application was developed using the [Vue CLI](https://cli.vuejs.org/), which is the standard tooling baseline for Vue ecosystem. 
 
 <p align="center">
-  <img width="1000" height="auto" alt="Vue App Interface" src="/Assets/BlockDiagrams/VueAppInterface.png">
+  <img width="1000" height="auto" alt="Vue App Interface" src="/Assets/Images/VueAppInterface.png">
 </p>
 
 ...explanation goes on...
