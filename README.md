@@ -61,7 +61,7 @@ For the controller the commands are shown in the following scheme:
 ## General Architecture
 
 The communication between the three components is realized through the OSC protocol. When the user changes a parameter value in the web application, this sends an OSC message with the updated value to an OSC server that runs continuously in the UE5 application.
-The UE5 also acts as an OSC client, by sending OSC messages each frame to SuperCollider. These messages contain the full status of the simulation, that includes both the parameter values and the spaceship distance from the black hole.
+The UE5 app also acts as an OSC client, by sending OSC messages each frame to SuperCollider. These messages contain the full status of the simulation, that includes both the parameter values and the spaceship distance from the black hole.
 These values are used to modulate the sound produced by SuperCollider.
 
 In the following, two possible scenarios are shown.
