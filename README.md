@@ -106,7 +106,7 @@ As explained before, it can be easily noticed that all ControlPanel instances ar
 In the parent component, **ControlInterface**, the corresponding **event handler** is attached to the HTML element representing the child. This handler triggers **updateState** function any time the **stateChange** event has been received. This function is defined within the methods option object of ControlInterface and is responsible for updating the global state of parameters. Also, it executes a function call to **sendOSCMessage** method which opens OSC connection, wrap data related to the single parameter into an OSC Packet and send it over to the dedicated Node Server.
 
 The **OSC Communication** between the **Web App** and **Unreal Engine** was implemented through a **Node WebSocket Server** running at localhost on Port 8081, acting as a bridge between the two applications. The Vue App creates an **OSC WebSocket Client** instance sending messages to the Node Server listening to OSC Messages and broadcasting them over UDP to the receiver. The endpoint could run on the same machine or on a remote one. 
-To enable the communication between the Vue App and Unreal Engine running on separate machines, go to **index.js** in **node-server** directory and set the correct remote IP Address and Port (lines 27 and 28 respectively). Then, set the same IP Address and Port for the corresponding OSC Server instance in Unreal Engine project, within BP_BlackHole Blueprint.
+To enable the communication between the Vue App and Unreal Engine running on separate machines, go to **index.js** in **node-server** directory and set the correct remote IP Address and Port (lines 27 and 28 respectively). Then, set the same IP Address and Port for the corresponding OSC Server instance in Unreal Engine Project, within BP_BlackHole Blueprint.
 
 Node Server and bridging were implemented through [osc.js](https://github.com/colinbdclark/osc.js) library (by Colin Clark), whereas the OSC Client was created and set up using [osc-js](https://github.com/adzialocha/osc-js) library.
 
@@ -154,7 +154,7 @@ The disk is colored according to the temperature and the frequency shift (dopple
 The entire auditory scene is implemented using SuperCollider. The OSC communication protocol makes it communicating with Unreal Engine 5.
 The soundscape concept is based on early sci-fi movies music. The main goal is to emulate sci-fi music in a generative/random fashion while maintaining a certain grade of control on the algorithm. Both harmonic and inharmonic sounds are employed to reach an unreal yet “pleasant” and characteristic sound setting. The aim of this algorithm is to enlighten the vastity of the universe and the immense power of a black hole.
 
-#### Synthesis techniques and FX
+#### Synthesis Techniques and FX
 Different kind of synthesis has been employed:
 -	**Subtractive**: to set the main background consisting of filtered sawtooth-like waveforms and impulsive sounds
 -	**FM**: to realize short and modulated sinusoids as well as the noisy "particle motion" effect
@@ -163,7 +163,7 @@ Different kind of synthesis has been employed:
 
 The sounds coming from different synthesizers are mixed together and then processed by a common reverb effect, which also provides companding and limiting functionalities.
 
-#### Synthesis parameters and user interaction
+#### Synthesis Parameters and User Interaction
 
 Fundamental frequencies of the main background sounds are picked up from a restricted set of values to make the result pleasant from a musical standpoint, while all the other parameters (envelopes, vibrato, detuning, …) are randomly generated within a range of pre-established values. All the sounds are continuosly generated in time with a minimum grade of randomness.
 The black hole parameters and its distance from the spaceship influence the soundscape:
