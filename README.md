@@ -10,7 +10,7 @@ The user can navigate inside the scene by moving a spaceship with the aid of a c
   <img width="800" height="auto" alt="Oblivion thumbnail" src="/Assets/Images/main_oblivion.png">
 </p>
 
-[Video demo](https://www.youtube.com/watch?v=BiPovgignbY)
+[Demo Video](https://www.youtube.com/watch?v=BiPovgignbY)
 
 ## How to install
 
