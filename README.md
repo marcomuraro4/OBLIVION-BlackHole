@@ -94,7 +94,7 @@ The app architecture is organized into the following components, from the highes
 - **RoundSilder** models the graphical knob component with its own interactive contents and internal logic. In particular, circular sliders were intergrated inside the app by means of [vue-three-round-slider](https://github.com/Artem9989/vue-three-round-slider), a external pre-built library implementing a Vue custom component (imported here as RoundSilder exactly).
 
 The global state of available parameters is defined as an object, named **engineState**, in the **ControlInterface** component within its data function that returns on its turn an object which encapsulates all the data of the Vue custom block. \
-This object holds on its turn multiple objects, one for each available parameter for the user within the GUI. Furthermore, each one of them is passed as a property to the corresponding **ControlPanel** instance (child component) for initialization of its round slider.
+This object holds on its turn multiple objects, one for each available parameter for the user within the GUI. Furthermore, each one of them is passed as a property to the corresponding **ControlPanel** instance (child component) for initialization of its own round slider.
 
 The following diagram illustrates the architecture of the application in terms of how Vue components are nested inside each other. 
 
