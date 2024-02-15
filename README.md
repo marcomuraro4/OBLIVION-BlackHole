@@ -136,7 +136,7 @@ The sampling process works as follows:
 
 ##### Disk Rotation
 
-To obtain a realistic rotation effect, the disk should rotate faster close to the event horizon and slower farther away (in particular, it decreases with the cube of the distance). The effect can be obtained by applying a rotation matrix to the UV coordinates when sampling the texture. In pratice, the speed cannot vary continuously with the distance or we will have strange artifacts. Therefore we must divide the disk in multiple discrete bands of constant speed.
+To obtain a realistic rotation effect, the disk should rotate faster close to the event horizon and slower farther away (in particular, the rotation speed decreases with the cube of the distance). The effect can be obtained by applying a rotation matrix to the UV coordinates when sampling the texture. In pratice, the speed cannot vary continuously with the distance or we will have strange artifacts. Therefore we must divide the disk in multiple discrete bands of constant speed.
 To avoid the presence of visible seams between these bands, we add additional shifted bands and then interpolate the results obtained from sampling the texture with the two different sets of bands.
 
 
