@@ -126,12 +126,12 @@ Supermassive objects in space cause light rays around them to follow curved path
 To render the accretion disk, we first check if the view path crosses the accretion disk region. This is modeled as an anular region around the black hole singularity, which is surrounded by a fog layer with a certain thickness.
 When inside this region, we sample the color of the scene appropriately.
 The sampling process works as follows:
-- we compute the fog density, which increases towards the center of the disk with a certain function
-- we sample a texture to obtain the color of the fog
-- we compute the light energy reaching that point (using an inverse square law depending on the distance)
-- we sample a texture to obtain the color and density of the accretion disk
-- we use a volumetric rendering approach to determine the amount of light absorbed and the one actually reaching the point
-- finally the contribution from the disk and the fog color is summed together
+- We compute the fog density, which increases towards the center of the disk with a certain function
+- We sample a texture to obtain the color of the fog
+- We compute the light energy reaching that point (using an inverse square law depending on the distance)
+- We sample a texture to obtain the color and density of the accretion disk
+- We use a volumetric rendering approach to determine the amount of light absorbed and the one actually reaching the point
+- Finally the contribution from the disk and the fog color is summed together
 
 
 ##### Disk Rotation
