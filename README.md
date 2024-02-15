@@ -156,10 +156,10 @@ The soundscape concept is based on early sci-fi movies music. The main goal is t
 
 #### Synthesis techniques and FX
 Different kind of synthesis has been employed:
--	Subtractive: to set the main background consisting of filtered sawtooth-like waveforms and impulsive sounds
--	FM: to realize short and modulated sinusoids as well as the noisy "particle motion" effect
--	Wavetable: to spread short grapples of ringing sounds derived from the actual sample of a triangle
--	Digital waveguide: to generate a "gust of wind" effect
+-	**Subtractive**: to set the main background consisting of filtered sawtooth-like waveforms and impulsive sounds
+-	**FM**: to realize short and modulated sinusoids as well as the noisy "particle motion" effect
+-	**Wavetable**: to spread short grapples of ringing sounds derived from the actual sample of a triangle
+-	**Digital Waveguide**: to generate a "gust of wind" effect
 
 The sounds coming from different synthesizers are mixed together and then processed by a common reverb effect, which also provides companding and limiting functionalities.
 
